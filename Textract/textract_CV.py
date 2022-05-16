@@ -110,16 +110,6 @@ def process_text_detection(bucket, document):
     s3_object = s3_connection.Object(bucket, document)
     s3_response = s3_object.get()
 
-    # with open(s3_response['Body'], 'rb') as file:
-    #     img_test = file.read()
-    #     print('Image loaded', file_name)
-
-    # # opening binary stream using an in-memory bytes buffer
-    # stream = io.BytesIO(s3_response['Body'].read())
-
-    # # loading stream into image
-    # image = Image.open(stream)
-
     # # Detect text in the document
     client = boto3.client('textract', region_name="eu-west-1")
 
@@ -131,42 +121,33 @@ def process_text_detection(bucket, document):
     print("\n\n== FOUND KEY : VALUE pairs ===\n")
     print_kvs(kvs)
 
-    # process using S3 object
-    response = client.analyze_expense(
-        Document={'S3Object': {'Bucket': bucket, 'Name': document}})
+    textract = boto3.client('textract')
+    
+    # Call Amazon Textract
+    response = textract.detect_document_text(Document={'Bytes': bytes_test})
 
-    # Set width and height to display image and draw bounding boxes
-    # Create drawing object
-    width, height = image.size
-    draw = ImageDraw.Draw(image)
+    # response = client.analyze_document(Document={'Bytes': document}, FeatureTypes=['FORMS'])
+    # response = textract.detect_document_text(Document={'Bytes': document})
 
-    for expense_doc in response["ExpenseDocuments"]:
-        for line_item_group in expense_doc["LineItemGroups"]:
-            for line_items in line_item_group["LineItems"]:
-                for expense_fields in line_items["LineItemExpenseFields"]:
-                    print_labels_and_values(expense_fields)
-                    print()
+    #print(response)
 
-        print("Summary:")
-        for summary_field in expense_doc["SummaryFields"]:
-            print_labels_and_values(summary_field)
-            print()
+    # Print text
+    print("\nText\n========")
+    text = ""
+    for item in response["Blocks"]:
+        if item["BlockType"] == "LINE":
+            print ('\033[94m' +  item["Text"] + '\033[0m')
+            text = text + " " + item["Text"]
 
-        #For draw bounding boxes
-        for line_item_group in expense_doc["LineItemGroups"]:
-            for line_items in line_item_group["LineItems"]:
-                for expense_fields in line_items["LineItemExpenseFields"]:
-                    for key, val in expense_fields["ValueDetection"].items():
-                        if "Geometry" in key:
-                            draw_bounding_box(key, val, width, height, draw)
+    # Amazon Comprehend client
+    comprehend = boto3.client('comprehend')
 
-        for label in expense_doc["SummaryFields"]:
-            if "LabelDetection" in label:
-                for key, val in label["LabelDetection"].items():
-                    draw_bounding_box(key, val, width, height, draw)
+    # Detect entities
+    entities =  comprehend.detect_entities(LanguageCode="en", Text=text)
+    print("\nEntities\n========")
+    for entity in entities["Entities"]:
+        print ("{}\t=>\t{}".format(entity["Type"], entity["Text"]))
 
-    # Display the image
-    image.show()
 
 def main():
     bucket = 'sagemaker-canvas-bucket-tutorial'
