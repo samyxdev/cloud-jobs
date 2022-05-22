@@ -3,7 +3,15 @@ from django.shortcuts import render
 from .models import Jobs
 
 # Hardcoded listenings for example
-hardcoded_jobs = [{"title":"Software Engineer", "desc":"Super position in a super company", "date":"22/05/2022"}, {"title":"Smart Contract Dev", "desc":"Solidity expert with 2+ years experience related to SC developpment.", "date":"20/05/2022"}]
+hardcoded_jobs = [{"title":"Software Engineer",
+                    "company":"TrustEn",
+                    "desc":"Super position in a super company",
+                    "date":"22/05/2022"},
+
+                    {"title":"Smart Contract Dev",
+                    "company":"Slope.fi",
+                    "desc":"Solidity expert with 2+ years experience related to SC developpment.",
+                    "date":"20/05/2022"}]
 
 def index(request):
     #jobs = Jobs()
