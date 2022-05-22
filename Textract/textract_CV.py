@@ -81,15 +81,15 @@ def process_text_detection(bucket, document):
     # serializer = TypeSerializer()
     # item = {"foo": "bar"}
     # dyn_item = {key: serializer.serialize(value) for key, value in item.items()}
-    
-    store_as_string = lambda x: ",".join([str(i) for i in x])
-    
-    d2 = dict((k, store_as_string(v)) for k,v in cv_items.items())
-    
+
+    def store_as_string(x): return ",".join([str(i) for i in x])
+
+    d2 = dict((k, store_as_string(v)) for k, v in cv_items.items())
+
     for db_item_key, db_item_value in d2.items():
         response_dynamodb = table.put_item(
             Item={
-                'entity' : db_item_value,
+                'entity': "{}:{}".format(db_item_key, db_item_value),
             }
         )
 
