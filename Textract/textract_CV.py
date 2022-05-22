@@ -1,11 +1,5 @@
 import boto3
-import io
-import sys
 import re
-import json
-
-from PIL import Image, ImageDraw
-
 
 def get_kv_map(document, client):
 
@@ -30,79 +24,9 @@ def get_kv_map(document, client):
 
     return key_map, value_map, block_map
 
-
-def get_kv_relationship(key_map, value_map, block_map):
-    kvs = {}
-    for block_id, key_block in key_map.items():
-        value_block = find_value_block(key_block, value_map)
-        key = get_text(key_block, block_map)
-        val = get_text(value_block, block_map)
-        kvs[key] = val
-    return kvs
-
-
-def find_value_block(key_block, value_map):
-    for relationship in key_block['Relationships']:
-        if relationship['Type'] == 'VALUE':
-            for value_id in relationship['Ids']:
-                value_block = value_map[value_id]
-    return value_block
-
-
-def get_text(result, blocks_map):
-    text = ''
-    if 'Relationships' in result:
-        for relationship in result['Relationships']:
-            if relationship['Type'] == 'CHILD':
-                for child_id in relationship['Ids']:
-                    word = blocks_map[child_id]
-                    if word['BlockType'] == 'WORD':
-                        text += word['Text'] + ' '
-                    if word['BlockType'] == 'SELECTION_ELEMENT':
-                        if word['SelectionStatus'] == 'SELECTED':
-                            text += 'X '    
-
-                                
-    return text
-
-
 def print_kvs(kvs):
     for key, value in kvs.items():
         print(key, ":", value)
-
-
-def search_value(kvs, search_key):
-    for key, value in kvs.items():
-        if re.search(search_key, key, re.IGNORECASE):
-            return value
-
-def draw_bounding_box(key, val, width, height, draw):
-    # If a key is Geometry, draw the bounding box info in it
-    if "Geometry" in key:
-        # Draw bounding box information
-        box = val["BoundingBox"]
-        left = width * box['Left']
-        top = height * box['Top']
-        draw.rectangle([left, top, left + (width * box['Width']), top + (height * box['Height'])],
-                       outline='black')
-
-# Takes a field as an argument and prints out the detected labels and values
-def print_labels_and_values(field):
-    # Only if labels are detected and returned
-    if "LabelDetection" in field:
-        print("Summary Label Detection - Confidence: {}".format(
-            str(field.get("LabelDetection")["Confidence"])) + ", "
-              + "Summary Values: {}".format(str(field.get("LabelDetection")["Text"])))
-        print(field.get("LabelDetection")["Geometry"])
-    else:
-        print("Label Detection - No labels returned.")
-    if "ValueDetection" in field:
-        print("Summary Value Detection - Confidence: {}".format(
-            str(field.get("ValueDetection")["Confidence"])) + ", "
-              + "Summary Values: {}".format(str(field.get("ValueDetection")["Text"])))
-        print(field.get("ValueDetection")["Geometry"])
-    else:
-        print("Value Detection - No values returned")
 
 def process_text_detection(bucket, document):
     # Get the document from S3
@@ -110,26 +34,11 @@ def process_text_detection(bucket, document):
     s3_object = s3_connection.Object(bucket, document)
     s3_response = s3_object.get()
 
-    # # Detect text in the document
-    client = boto3.client('textract', region_name="eu-west-1")
-
     bytes_test = bytearray(s3_response['Body'].read())
-    key_map, value_map, block_map = get_kv_map(bytes_test, client)
-
-    # Get Key Value relationship
-    kvs = get_kv_relationship(key_map, value_map, block_map)
-    print("\n\n== FOUND KEY : VALUE pairs ===\n")
-    print_kvs(kvs)
-
-    textract = boto3.client('textract')
+    textract = boto3.client('textract', region_name='eu-west-1')
     
     # Call Amazon Textract
     response = textract.detect_document_text(Document={'Bytes': bytes_test})
-
-    # response = client.analyze_document(Document={'Bytes': document}, FeatureTypes=['FORMS'])
-    # response = textract.detect_document_text(Document={'Bytes': document})
-
-    #print(response)
 
     # Print text
     print("\nText\n========")
@@ -147,6 +56,10 @@ def process_text_detection(bucket, document):
     print("\nEntities\n========")
     for entity in entities["Entities"]:
         print ("{}\t=>\t{}".format(entity["Type"], entity["Text"]))
+
+    # Put item in DynamoDB
+    dynamodb = boto3.client('dynamodb')    
+    dynamodb.put_item(TableName='CCBDA_Project', Item={'email':{'S':'daniel.arias2493@gmail.com'}, 'skills': {'S': str(*entity["Type"]) }})
 
 
 def main():
