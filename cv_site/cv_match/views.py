@@ -1,6 +1,7 @@
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
-from .models import Jobs
+from .models import Jobs, CV
+from .forms import UploadFileForm
 
 # Hardcoded listenings for example
 hardcoded_jobs = [{"title":"Software Engineer",
@@ -25,4 +26,14 @@ def index(request):
     return render(request, 'cv_match/index.html', context)
 
 def upload(request):
-    return HttpResponse("Upload your CV here")
+    return render(request, 'cv_match/upload.html')
+
+def upload_file(request):
+    if request.method == 'POST':
+        form = UploadFileForm(request.POST, request.FILES)
+        if form.is_valid():
+            CV.handle_cv_upload(request.FILES['file'])
+            return HttpResponseRedirect('/success/url/')
+    else:
+        form = UploadFileForm()
+    return render(request, 'cv_match/upload.html', {'form': form})
