@@ -44,3 +44,15 @@ class Jobs(models.Model):
 
 
 
+
+class CV(models.Model):
+    def handle_cv_upload(self, f, f_id):
+        print("New CV uploaded, uuid=" + f_id)
+        with open("file_" + f_id, 'wb+') as destination:
+            # ... do something here with the CV
+            pass
+
+        return None
+
+
+

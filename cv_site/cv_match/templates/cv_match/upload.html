@@ -76,7 +76,16 @@
           <h3 class="mb-3 mb-md-0">Upload your CV here</h3>
 
           <div class="input-group news-input">
-            <button class="btn btn-dark btn-lg" type="button">Upload</button>
+            <form method="post" enctype="multipart/form-data">{% csrf_token %}
+              <div class="row">
+                <div class="col-auto">
+                  <input type="file" class="form-control" id="file" name="file" multiple>
+                </div>
+                <div class="col-auto">
+                  <button class="btn btn-secondary">Submit</button>
+                </div>
+              </div>
+            </form>
           </div>
         </div>
       </div>
