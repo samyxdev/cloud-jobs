@@ -111,17 +111,26 @@
     <!-- Boxes -->
     <section class="p-5">
       <div class="container">
-        <div class="row text-center g-4">
+        <div class="row text-center g-0">
           <div class="col-md">
 
             {% for job in jobs %}
               <div class="card border-primary bg-dark text-light my-2">
                 <div class="card-body">
-                 <!-- <div class="h1 mb-3"> <i class="bi bi-laptop"></i> </div> -->
-                  <h3 class="card-title mb-3">{{ job.title }} @ {{ job.company }}</h3>
-                  <p class="card-text">{{ job.desc }}</p>
-                  <a href="#" class="btn btn-primary">Read More</a>
+                  <div class="container">
+                    <div class="row">
+                      <div class="col-10">
+                        <h3 class="card-title mb-3">{{ job.title }} @ {{ job.company }}</h3>
+                        <p class="card-text">{{ job.desc }}</p>
+                      </div>
+
+                      <div class="col-2">
+                        <a class="btn btn-primary stretched-link"  href="#"><i class="bi bi-arrow-right"></i></a>
+                      </div>
+                    </div>
+                  </div>
                 </div>
+
                 <div class="card-footer text-muted">
                   <div class="container">
                     <div class="row">
@@ -136,6 +145,7 @@
                     </div>
                   </div>
                 </div>
+
               </div>
             {% endfor %}
 
