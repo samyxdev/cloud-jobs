@@ -32,12 +32,12 @@ def login(request):
 
         if user is not None:
             auth.login(request , user)
-            return redirect('/home')    
+            return redirect('/')    
         else:
             messages.info(request, 'invalid username or password')
-            return redirect("/")
+            return redirect("/login")
     else:
-        return render(request,'index.html')
+        return render(request,'login.html')
 
 
 def register(request):
@@ -101,3 +101,7 @@ def save(request):
 def logout(request):
     auth_logout(request)
     return redirect('/')
+
+
+def login_page(request):
+    return redirect('login')

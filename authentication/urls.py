@@ -10,5 +10,6 @@ urlpatterns = [
     path('home',views.home , name= 'home'),
     re_path(r'^logout/$', views.logout, name='logout'),
     path('savejob', views.save, name='savejob'),
-    path('upload', views.upload, name='upload')
+    path('upload', views.upload, name='upload'),
+    path('login_page', views.login_page, name='login_page')
 ]
