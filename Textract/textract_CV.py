@@ -1,14 +1,13 @@
-import pickle
 import boto3
-import json
-from decimal import Decimal
-from boto3.dynamodb.types import TypeSerializer
-
 
 SKILLS_TABLE = 'CCBDA_Project'
 
 AWS_REGION = "eu-west-1"
 
+databasesNames = ["DB2","MySQL","Oracle","PostgreSQL","SQLite","SQL Server","Sybase","OpenEdge SQL","RethinkDB","Berkeley DB","memcached","redis","couchDB","mongoDB","Neo4j","AWS Neptune","Sesame","AllegroGraph","RDF/triplestores"]
+programmingLanguages = ["C","Java ","Python","C++","C# ","Visual Basic ","JavaScript","PHP","SQL","Assembly language","R","Groovy"]
+
+skills = set()
 
 def get_kv_map(document, client):
 
@@ -72,30 +71,35 @@ def process_text_detection(bucket, document):
             cv_items[entity["Type"]] = set()
         print("{}\t=>\t{}".format(entity["Type"], entity["Text"]))
         cv_items[entity["Type"]].add(entity["Text"])
+        
+        if entity["Text"] in databasesNames or entity["Text"] in programmingLanguages:
+            skills.add(entity["Text"])
 
     # Put item in DynamoDB
     dynamodb = boto3.resource('dynamodb', region_name=AWS_REGION)
     table = dynamodb.Table(SKILLS_TABLE)
 
-    # cv_entities = json.dumps(cv_items)
-    # serializer = TypeSerializer()
-    # item = {"foo": "bar"}
-    # dyn_item = {key: serializer.serialize(value) for key, value in item.items()}
+    # def store_as_string(x): return ",".join([str(i) for i in x])
 
-    def store_as_string(x): return ",".join([str(i) for i in x])
+    # d2 = dict((k, store_as_string(v)) for k, v in cv_items.items())
 
-    d2 = dict((k, store_as_string(v)) for k, v in cv_items.items())
-
-    for db_item_key, db_item_value in d2.items():
-        response_dynamodb = table.put_item(
-            Item={
-                'entity': "{}:{}".format(db_item_key, db_item_value),
-            }
-        )
+    # for db_item_key, db_item_value in d2.items():
+    #     response_dynamodb = table.put_item(
+    #         Item={
+    #             'entity': "{}:{}".format(db_item_key, db_item_value),
+    #         }
+    #     )
+    
+    print("skills", skills)
+    
+    response_dynamodb = table.put_item(
+        Item={
+            'entity': ",".join(skills),
+        }
+    )
 
     print("response", response_dynamodb)
-
-
+    
 def main():
     bucket = 'sagemaker-canvas-bucket-tutorial'
     document = 'Daniel_Arias_CV.pdf'
