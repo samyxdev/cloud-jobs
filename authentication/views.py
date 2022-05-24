@@ -8,9 +8,11 @@ from django.contrib.auth import logout as auth_logout
 import requests
 import ast
 import uuid
-
-from .forms import JobDescriptionForm
-from .models import Meal
+#from .forms import JobDescriptionForm
+#from .models import Meal
+from django.http import HttpResponse, HttpResponseRedirect
+from django.shortcuts import render
+from .models import Jobs, CV
 
 
 
@@ -54,8 +56,17 @@ def register(request):
 
     return render(request,'register.html')
 
-def cv(request):
-    return render(request, 'cv.html')
+#def cv(request):
+#    return render(request, 'cv.html')
+def upload(request):
+    if request.method == 'POST' and request.FILES['file']:
+        user_file = request.FILES["file"]
+
+        cv = CV()
+        cv.handle_cv_upload(user_file, str(uuid.uuid4()))
+        return render(request, 'upload.html')
+    else:
+        return render(request, 'upload.html')
 
 
 def home(request):
