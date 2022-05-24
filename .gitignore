@@ -129,3 +129,6 @@ dmypy.json
 .pyre/
 Textract/.vscode/launch.json
 *.csv
+
+# CV Files
+cv_site/file_*
