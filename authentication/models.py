@@ -28,7 +28,7 @@ class Meal(models.Model):
     def __str__(self):
         return self.name
 
-        
+
 '''
 from http.client import UnimplementedFileMode
 from django.db import models
@@ -49,16 +49,16 @@ class Jobs(models.Model):
         # Hardcoded listenings for example
         hardcoded_jobs = [{"title":"Software Engineer",
                             "company":"TrustEn",
-                            "desc":"Super position in a super company",
-                            "date":"22/05/2022",
+                            "description":"Super position in a super company",
                             "location":"Barcelona",
+                            "salary":"90k",
                             "skills":["Ruby", "Python"]},
 
                             {"title":"Smart Contract Dev",
                             "company":"Slope.fi",
-                            "desc":"Solidity expert with 2+ years experience related to SC developpment.",
-                            "date":"20/05/2022",
+                            "description":"Solidity expert with 2+ years experience related to SC developpment.",
                             "location":"Remote",
+                            "salary":"120k",
                             "skills":["Solidity"]}]
 
         return hardcoded_jobs
