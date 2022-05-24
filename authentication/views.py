@@ -4,15 +4,24 @@ from django.contrib.auth.models import User, auth
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout as auth_logout
+
 import requests
 import ast
+import uuid
+
 from .forms import JobDescriptionForm
 from .models import Meal
 
 
-# Create your views here.
-def index(request):
 
+def index(request):
+    jobs = Jobs()
+    context = {"jobs":jobs.get_jobs()}
+    #context = {"jobs":hardcoded_jobs}
+
+    return render(request, 'index.html', context)
+
+def login(request):
     if request.method == 'POST':
         username = request.POST['username']
         password = request.POST['password']
