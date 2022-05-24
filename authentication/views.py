@@ -100,7 +100,7 @@ def save(request):
 
 def logout(request):
     auth_logout(request)
-    return redirect('/')
+    return redirect('/login')
 
 
 def login_page(request):

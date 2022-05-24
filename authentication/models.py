@@ -38,13 +38,17 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-JOBS_TABLE = os.environ.get('STARTUP_SIGNUP_TABLE')
+JOBS_TABLE = 'jobs'
 
-AWS_REGION = os.environ.get('AWS_REGION')
-AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
-AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
+#AWS_REGION = os.environ.get('AWS_REGION')
+#AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
+#AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
+AWS_REGION = 'eu-west-1'
+AWS_ACCESS_KEY_ID = 'AKIASBHUH3TG4VZE6JWV'
+AWS_SECRET_ACCESS_KEY = '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'
 
 class Jobs(models.Model):
+    '''
     def get_jobs(self, filters=None, limit=100):
         # Hardcoded listenings for example
         hardcoded_jobs = [{"title":"Software Engineer",
@@ -62,8 +66,9 @@ class Jobs(models.Model):
                             "skills":["Solidity"]}]
 
         return hardcoded_jobs
+    '''
 
-    def _get_jobs(self, filters=None, limit=100):
+    def get_jobs(self, filters=None, limit=5):
         """Retrieve jobs from the DynamoDB. Can use filters formatted
         by TODO:OTHERFUNCTION for the search in the DB.
 
@@ -91,8 +96,6 @@ class Jobs(models.Model):
 
         logger.error('Error retrieving jobs from database. Reponse:'+ str(rep['ResponseMetadata']['HTTPStatusCode']))
         return None
-
-
 
 
 class CV(models.Model):
