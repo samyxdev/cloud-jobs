@@ -1,19 +1,22 @@
+import pickle
 import boto3
-import io
-import sys
-import re
 import json
+from decimal import Decimal
+from boto3.dynamodb.types import TypeSerializer
 
-from PIL import Image, ImageDraw
+
+SKILLS_TABLE = 'CCBDA_Project'
+
+AWS_REGION = "eu-west-1"
 
 
 def get_kv_map(document, client):
 
-    response = client.analyze_document(Document={'Bytes': document}, FeatureTypes=['FORMS'])
+    response = client.analyze_document(
+        Document={'Bytes': document}, FeatureTypes=['FORMS'])
 
     # Get the text blocks
-    blocks=response['Blocks']
-    
+    blocks = response['Blocks']
 
     # get key and value maps
     key_map = {}
@@ -31,78 +34,10 @@ def get_kv_map(document, client):
     return key_map, value_map, block_map
 
 
-def get_kv_relationship(key_map, value_map, block_map):
-    kvs = {}
-    for block_id, key_block in key_map.items():
-        value_block = find_value_block(key_block, value_map)
-        key = get_text(key_block, block_map)
-        val = get_text(value_block, block_map)
-        kvs[key] = val
-    return kvs
-
-
-def find_value_block(key_block, value_map):
-    for relationship in key_block['Relationships']:
-        if relationship['Type'] == 'VALUE':
-            for value_id in relationship['Ids']:
-                value_block = value_map[value_id]
-    return value_block
-
-
-def get_text(result, blocks_map):
-    text = ''
-    if 'Relationships' in result:
-        for relationship in result['Relationships']:
-            if relationship['Type'] == 'CHILD':
-                for child_id in relationship['Ids']:
-                    word = blocks_map[child_id]
-                    if word['BlockType'] == 'WORD':
-                        text += word['Text'] + ' '
-                    if word['BlockType'] == 'SELECTION_ELEMENT':
-                        if word['SelectionStatus'] == 'SELECTED':
-                            text += 'X '    
-
-                                
-    return text
-
-
 def print_kvs(kvs):
-    for key, value in kvs.items():
+    for key, value in kvs.cv_items():
         print(key, ":", value)
 
-
-def search_value(kvs, search_key):
-    for key, value in kvs.items():
-        if re.search(search_key, key, re.IGNORECASE):
-            return value
-
-def draw_bounding_box(key, val, width, height, draw):
-    # If a key is Geometry, draw the bounding box info in it
-    if "Geometry" in key:
-        # Draw bounding box information
-        box = val["BoundingBox"]
-        left = width * box['Left']
-        top = height * box['Top']
-        draw.rectangle([left, top, left + (width * box['Width']), top + (height * box['Height'])],
-                       outline='black')
-
-# Takes a field as an argument and prints out the detected labels and values
-def print_labels_and_values(field):
-    # Only if labels are detected and returned
-    if "LabelDetection" in field:
-        print("Summary Label Detection - Confidence: {}".format(
-            str(field.get("LabelDetection")["Confidence"])) + ", "
-              + "Summary Values: {}".format(str(field.get("LabelDetection")["Text"])))
-        print(field.get("LabelDetection")["Geometry"])
-    else:
-        print("Label Detection - No labels returned.")
-    if "ValueDetection" in field:
-        print("Summary Value Detection - Confidence: {}".format(
-            str(field.get("ValueDetection")["Confidence"])) + ", "
-              + "Summary Values: {}".format(str(field.get("ValueDetection")["Text"])))
-        print(field.get("ValueDetection")["Geometry"])
-    else:
-        print("Value Detection - No values returned")
 
 def process_text_detection(bucket, document):
     # Get the document from S3
@@ -110,50 +45,63 @@ def process_text_detection(bucket, document):
     s3_object = s3_connection.Object(bucket, document)
     s3_response = s3_object.get()
 
-    # # Detect text in the document
-    client = boto3.client('textract', region_name="eu-west-1")
-
     bytes_test = bytearray(s3_response['Body'].read())
-    key_map, value_map, block_map = get_kv_map(bytes_test, client)
+    textract = boto3.client('textract', region_name='eu-west-1')
 
-    # Get Key Value relationship
-    kvs = get_kv_relationship(key_map, value_map, block_map)
-    print("\n\n== FOUND KEY : VALUE pairs ===\n")
-    print_kvs(kvs)
-
-    textract = boto3.client('textract')
-    
     # Call Amazon Textract
     response = textract.detect_document_text(Document={'Bytes': bytes_test})
-
-    # response = client.analyze_document(Document={'Bytes': document}, FeatureTypes=['FORMS'])
-    # response = textract.detect_document_text(Document={'Bytes': document})
-
-    #print(response)
 
     # Print text
     print("\nText\n========")
     text = ""
     for item in response["Blocks"]:
         if item["BlockType"] == "LINE":
-            print ('\033[94m' +  item["Text"] + '\033[0m')
+            print('\033[94m' + item["Text"] + '\033[0m')
             text = text + " " + item["Text"]
 
     # Amazon Comprehend client
     comprehend = boto3.client('comprehend')
 
     # Detect entities
-    entities =  comprehend.detect_entities(LanguageCode="en", Text=text)
+    entities = comprehend.detect_entities(LanguageCode="en", Text=text)
+    cv_items = {}
+
     print("\nEntities\n========")
     for entity in entities["Entities"]:
-        print ("{}\t=>\t{}".format(entity["Type"], entity["Text"]))
+        if entity["Type"] not in cv_items.keys():
+            cv_items[entity["Type"]] = set()
+        print("{}\t=>\t{}".format(entity["Type"], entity["Text"]))
+        cv_items[entity["Type"]].add(entity["Text"])
+
+    # Put item in DynamoDB
+    dynamodb = boto3.resource('dynamodb', region_name=AWS_REGION)
+    table = dynamodb.Table(SKILLS_TABLE)
+
+    # cv_entities = json.dumps(cv_items)
+    # serializer = TypeSerializer()
+    # item = {"foo": "bar"}
+    # dyn_item = {key: serializer.serialize(value) for key, value in item.items()}
+
+    def store_as_string(x): return ",".join([str(i) for i in x])
+
+    d2 = dict((k, store_as_string(v)) for k, v in cv_items.items())
+
+    for db_item_key, db_item_value in d2.items():
+        response_dynamodb = table.put_item(
+            Item={
+                'entity': "{}:{}".format(db_item_key, db_item_value),
+            }
+        )
+
+    print("response", response_dynamodb)
 
 
 def main():
     bucket = 'sagemaker-canvas-bucket-tutorial'
     document = 'Daniel_Arias_CV.pdf'
-    
-    process_text_detection(bucket, document)    
+
+    process_text_detection(bucket, document)
+
 
 if __name__ == "__main__":
-    main()                  
+    main()
