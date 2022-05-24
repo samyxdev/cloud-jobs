@@ -14,6 +14,24 @@ AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
 
 class Jobs(models.Model):
     def get_jobs(self, filters=None, limit=100):
+        # Hardcoded listenings for example
+        hardcoded_jobs = [{"title":"Software Engineer",
+                            "company":"TrustEn",
+                            "desc":"Super position in a super company",
+                            "date":"22/05/2022",
+                            "location":"Barcelona",
+                            "skills":["Ruby", "Python"]},
+
+                            {"title":"Smart Contract Dev",
+                            "company":"Slope.fi",
+                            "desc":"Solidity expert with 2+ years experience related to SC developpment.",
+                            "date":"20/05/2022",
+                            "location":"Remote",
+                            "skills":["Solidity"]}]
+
+        return hardcoded_jobs
+
+    def _get_jobs(self, filters=None, limit=100):
         """Retrieve jobs from the DynamoDB. Can use filters formatted
         by TODO:OTHERFUNCTION for the search in the DB.
 
@@ -53,6 +71,42 @@ class CV(models.Model):
             pass
 
         return None
+
+    def insert_cv_extractions(self, cv_features, id=None):
+        """Insert the features of the CV associated to one's user
+        id to the database."""
+        logger.info(f"Env vars: {AWS_REGION}, {JOBS_TABLE}")
+
+        # Adding the user id to the dict
+        cv_features["id"] = id
+
+        try:
+            dynamodb = boto3.resource('dynamodb', region_name=AWS_REGION, aws_access_key_id=AWS_ACCESS_KEY_ID, aws_secret_access_key=AWS_SECRET_ACCESS_KEY )
+            table = dynamodb.Table(JOBS_TABLE)
+        except Exception as e:
+            logger.error(
+                'Error connecting to database table: ' + (e.fmt if hasattr(e, 'fmt') else '') + ','.join(e.args))
+            return 403
+        try:
+            response = table.put_item(
+                Item=cv_features,
+                ReturnValues='ALL_OLD',
+            )
+        except Exception as e:
+            logger.error(
+                'Error adding item to database: ' + (e.fmt if hasattr(e, 'fmt') else '') + ','.join(e.args))
+            return 403
+        status = response['ResponseMetadata']['HTTPStatusCode']
+        if status == 200:
+            if 'Attributes' in response:
+                logger.error('Existing item updated to database.')
+                return 409
+            logger.error('New item added to database.')
+        else:
+            logger.error('Unknown error inserting item to database.')
+
+        return status
+
 
 
 
