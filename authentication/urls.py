@@ -7,6 +7,8 @@ urlpatterns = [
     path('', views.index , name='index'),
     path('register', views.register, name='register' ),
     path('home',views.home , name= 'home'),
-    re_path(r'^logout/$', views.logout, name='logout')
+    path('cv', views.cv, name='cv' ),
+    re_path(r'^logout/$', views.logout, name='logout'),
+    path('savejob', views.save, name='savejob')
     
 ]
