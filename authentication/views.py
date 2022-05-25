@@ -18,7 +18,7 @@ from .models import Jobs, CV
 
 def index(request):
     jobs = Jobs()
-    context = {"jobs":jobs.get_jobs()}
+    context = {"jobs":jobs.get_hardcoded_jobs()}
 
     return render(request, 'index.html', context)
 

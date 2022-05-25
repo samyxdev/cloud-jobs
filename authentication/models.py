@@ -45,25 +45,34 @@ AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
 AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
 
 class Jobs(models.Model):
+    @staticmethod
+    def process_listings(listings):
+        for listing in listings:
+            for k in listing.keys():
+                if listing[k] is None:
+                    listing[k] = f"No {k} provided"
+
+        return listings
+
     def get_hardcoded_jobs(self, filters=None, limit=100):
         # Hardcoded listenings for example
         hardcoded_jobs = [{"title":"Software Engineer",
                             "company":"TrustEn",
                             "description":"Super position in a super company",
-                            "location":"Barcelona",
                             "salary":"90k",
+                            "location":None,
                             "link":"https://www.google.com/",
                             "skills":["Ruby", "Python"]},
 
                             {"title":"Smart Contract Dev",
                             "company":"Slope.fi",
                             "description":"Solidity expert with 2+ years experience related to SC developpment.",
+                            "salary":None,
                             "location":"Remote",
-                            "salary":"120k",
                             "link":"https://www.google.com/",
                             "skills":["Solidity"]}]
 
-        return hardcoded_jobs
+        return self.process_listings(hardcoded_jobs)
 
     def get_jobs(self, filters=None, limit=5):
         """Retrieve jobs from the DynamoDB. Can use filters formatted
@@ -94,10 +103,11 @@ class Jobs(models.Model):
                     if listing[k] is None:
                         listing[k] = f"No {k} provided"
 
-            return rep['Items']
+            return self.process_listings(rep['Items'])
 
         logger.error('Error retrieving jobs from database. Reponse:'+ str(rep['ResponseMetadata']['HTTPStatusCode']))
         return None
+
 
 
 
