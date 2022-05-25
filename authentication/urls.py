@@ -11,5 +11,6 @@ urlpatterns = [
     re_path(r'^logout/$', views.logout, name='logout'),
     path('savejob', views.save, name='savejob'),
     path('upload', views.upload, name='upload'),
-    path('login_page', views.login_page, name='login_page')
+    path('login_page', views.login_page, name='login_page'),
+    path('search', views.search, name='search')
 ]

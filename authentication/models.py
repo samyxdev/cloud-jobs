@@ -76,10 +76,12 @@ class Jobs(models.Model):
 
     def get_jobs(self, filters=None, limit=5):
         """Retrieve jobs from the DynamoDB. Can use filters formatted
-        by TODO:OTHERFUNCTION for the search in the DB.
+         for the search in the DB.
+
+         TODO: Search to be improved to avoid case-sensitive matching
 
         Arguments:
-        filters: Jobs filters as a dict of the format {"filtered_field":"matching-re"}
+        filters: Dict {":title":"pattern_to_search_job_titles", ":tags":"tags_to_look_for_in_listings"}
         limit: Number of jobs to display
         """
         try:
@@ -90,13 +92,16 @@ class Jobs(models.Model):
                 'Error connecting to database table: ' + (e.fmt if hasattr(e, 'fmt') else '') + ','.join(e.args))
             return None
 
-        # Make the query
+        # Apply query
         if filters is None:
             rep = table.scan(Limit=limit)
         else:
-            raise NotImplementedError("Job filtering hasn't been implemented yet.")
+            filter_expr = ["contains(title, :title)"]
+            rep = table.scan(Limit=limit,
+                            FilterExpression=' and '.join(filter_expr),
+                            ExpressionAttributeValues=filters)
+            #raise NotImplementedError("Job filtering hasn't been implemented yet.")
 
-        # Return response if valid
         if rep['ResponseMetadata']['HTTPStatusCode'] == 200:
             return self.process_listings(rep['Items'])
 

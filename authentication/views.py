@@ -18,7 +18,21 @@ from .models import Jobs, CV
 
 def index(request):
     jobs = Jobs()
-    context = {"jobs":jobs.get_hardcoded_jobs()}
+    context = {"jobs":jobs.get_jobs()}
+
+    return render(request, 'index.html', context)
+
+def search(request):
+    if request.method == 'GET':
+        filters = {}
+        filters[":title"] = request.GET.get("title")
+
+        #TODO: Handle tags
+
+        jobs = Jobs()
+        context = {"jobs":jobs.get_jobs(filters=filters)}
+
+        print(filters)
 
     return render(request, 'index.html', context)
 
