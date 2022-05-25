@@ -98,11 +98,6 @@ class Jobs(models.Model):
 
         # Return response if valid
         if rep['ResponseMetadata']['HTTPStatusCode'] == 200:
-            for listing in rep['Items']:
-                for k in listing.keys():
-                    if listing[k] is None:
-                        listing[k] = f"No {k} provided"
-
             return self.process_listings(rep['Items'])
 
         logger.error('Error retrieving jobs from database. Reponse:'+ str(rep['ResponseMetadata']['HTTPStatusCode']))
