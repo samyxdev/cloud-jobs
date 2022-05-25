@@ -1,5 +1,5 @@
 # Byte-compiled / optimized / DLL files
-__pycache__/
+**/__pycache__/
 *.py[cod]
 *$py.class
 
@@ -132,3 +132,7 @@ Textract/.vscode/launch.json
 
 # CV Files
 cv_site/file_*
+
+# Script file for exporting evironnement variable
+environnnement.bat
+environnnement.sh

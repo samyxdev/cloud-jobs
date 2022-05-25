@@ -71,12 +71,13 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'cloudjobs.wsgi.application'
 
+#TODO: Factoring user+password in environnement variables
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'cloudjobs_db',
-        'USER': 'francesco',
-        'PASSWORD': 'admin',
+        'NAME': 'postgres',
+        'USER': 'postgres',
+        'PASSWORD': 'ccbdasql',
         'HOST':'localhost'
 
     }

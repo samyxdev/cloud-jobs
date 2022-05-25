@@ -38,39 +38,64 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+<<<<<<< HEAD
 JOBS_TABLE = 'jobs'
+=======
+JOBS_TABLE = os.environ.get('JOBS_TABLE')
+>>>>>>> 0d708ae461f95273b657b3585cb2b953f437f2c8
 
 #AWS_REGION = os.environ.get('AWS_REGION')
 #AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
 #AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
 
 class Jobs(models.Model):
+<<<<<<< HEAD
     '''
     def get_jobs(self, filters=None, limit=100):
+=======
+    @staticmethod
+    def process_listings(listings):
+        for listing in listings:
+            for k in listing.keys():
+                if listing[k] is None:
+                    listing[k] = f"No {k} provided"
+
+        return listings
+
+    def get_hardcoded_jobs(self, filters=None, limit=100):
+>>>>>>> 0d708ae461f95273b657b3585cb2b953f437f2c8
         # Hardcoded listenings for example
         hardcoded_jobs = [{"title":"Software Engineer",
                             "company":"TrustEn",
                             "description":"Super position in a super company",
-                            "location":"Barcelona",
                             "salary":"90k",
+                            "location":None,
+                            "link":"https://www.google.com/",
                             "skills":["Ruby", "Python"]},
 
                             {"title":"Smart Contract Dev",
                             "company":"Slope.fi",
                             "description":"Solidity expert with 2+ years experience related to SC developpment.",
+                            "salary":None,
                             "location":"Remote",
-                            "salary":"120k",
+                            "link":"https://www.google.com/",
                             "skills":["Solidity"]}]
 
+<<<<<<< HEAD
         return hardcoded_jobs
     '''
+=======
+        return self.process_listings(hardcoded_jobs)
+>>>>>>> 0d708ae461f95273b657b3585cb2b953f437f2c8
 
     def get_jobs(self, filters=None, limit=5):
         """Retrieve jobs from the DynamoDB. Can use filters formatted
-        by TODO:OTHERFUNCTION for the search in the DB.
+         for the search in the DB.
+
+         TODO: Search to be improved to avoid case-sensitive matching
 
         Arguments:
-        filters: Jobs filters as a dict of the format {"filtered_field":"matching-re"}
+        filters: Dict {":title":"pattern_to_search_job_titles", ":tags":"tags_to_look_for_in_listings"}
         limit: Number of jobs to display
         """
         try:
@@ -81,20 +106,29 @@ class Jobs(models.Model):
                 'Error connecting to database table: ' + (e.fmt if hasattr(e, 'fmt') else '') + ','.join(e.args))
             return None
 
-        # Make the query
+        # Apply query
         if filters is None:
             rep = table.scan(Limit=limit)
         else:
-            raise NotImplementedError("Job filtering hasn't been implemented yet.")
+            filter_expr = ["contains(title, :title)"]
+            rep = table.scan(Limit=limit,
+                            FilterExpression=' and '.join(filter_expr),
+                            ExpressionAttributeValues=filters)
+            #raise NotImplementedError("Job filtering hasn't been implemented yet.")
 
-        # Return response if valid
         if rep['ResponseMetadata']['HTTPStatusCode'] == 200:
-            return rep['Items']
+            return self.process_listings(rep['Items'])
 
         logger.error('Error retrieving jobs from database. Reponse:'+ str(rep['ResponseMetadata']['HTTPStatusCode']))
         return None
 
 
+<<<<<<< HEAD
+=======
+
+
+
+>>>>>>> 0d708ae461f95273b657b3585cb2b953f437f2c8
 class CV(models.Model):
     def handle_cv_upload(self, f, f_id):
         print("New CV uploaded, uuid=" + f_id)
