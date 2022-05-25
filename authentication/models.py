@@ -38,7 +38,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-JOBS_TABLE = os.environ.get('STARTUP_SIGNUP_TABLE')
+JOBS_TABLE = os.environ.get('JOBS_TABLE')
 
 AWS_REGION = os.environ.get('AWS_REGION')
 AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
@@ -52,6 +52,7 @@ class Jobs(models.Model):
                             "description":"Super position in a super company",
                             "location":"Barcelona",
                             "salary":"90k",
+                            "link":"https://www.google.com/",
                             "skills":["Ruby", "Python"]},
 
                             {"title":"Smart Contract Dev",
@@ -59,6 +60,7 @@ class Jobs(models.Model):
                             "description":"Solidity expert with 2+ years experience related to SC developpment.",
                             "location":"Remote",
                             "salary":"120k",
+                            "link":"https://www.google.com/",
                             "skills":["Solidity"]}]
 
         return hardcoded_jobs
