@@ -19,7 +19,6 @@ from .models import Jobs, CV
 def index(request):
     jobs = Jobs()
     context = {"jobs":jobs.get_jobs()}
-    #context = {"jobs":hardcoded_jobs}
 
     return render(request, 'index.html', context)
 
@@ -32,7 +31,7 @@ def login(request):
 
         if user is not None:
             auth.login(request , user)
-            return redirect('/')    
+            return redirect('/')
         else:
             messages.info(request, 'invalid username or password')
             return redirect("/login")
@@ -93,9 +92,9 @@ def save(request):
         region = meal_dict['strArea']
         )
         meal_data.save()
-      
 
-    return render(request, 'home.html') 
+
+    return render(request, 'home.html')
 
 
 def logout(request):
