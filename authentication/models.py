@@ -43,9 +43,6 @@ JOBS_TABLE = 'jobs'
 #AWS_REGION = os.environ.get('AWS_REGION')
 #AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
 #AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
-AWS_REGION = 'eu-west-1'
-AWS_ACCESS_KEY_ID = 'AKIASBHUH3TG4VZE6JWV'
-AWS_SECRET_ACCESS_KEY = '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'
 
 class Jobs(models.Model):
     '''
