@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="en">
   <head>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
@@ -22,14 +23,16 @@
       rel="stylesheet"
     />
     {% load static %}
-    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
+    <!---<link rel="stylesheet" href="style.css" />-->
     <title>Frontend Bootcamp</title>
   </head>
+
   <body>
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg bg-dark navbar-dark py-3 fixed-top">
       <div class="container">
-        <a href="#" class="navbar-brand">Cloud Jobs</a>
+        <a href="/" class="navbar-brand">Cloud Jobs</a>
 
         <button
           class="navbar-toggler"
@@ -42,11 +45,21 @@
 
         <div class="collapse navbar-collapse" id="navmenu">
           <ul class="navbar-nav ms-auto">
-              <li class="nav-item">
-              <a href="{%url 'home' %}" class="nav-link">Back</a>
+            <li class="nav-item">
+              <a href="/upload" class="nav-link">Upload CV</a>
             </li>
           </ul>
         </div>
+        {% if user.is_authenticated %}
+
+          <div class="collapse navbar-collapse" id="navmenu">
+            <ul class="navbar-nav ms-auto">
+              <li class="nav-item">
+                    <a href="{% url 'logout' %}" class="nav-link">Logout</a>
+              </li>
+            </ul>
+          </div>
+        {% endif %}
       </div>
     </nav>
 
@@ -56,30 +69,84 @@
       <div class="container">
         <div class="d-sm-flex align-items-center justify-content-between">
           <div>
-            <h1><span class="text-warning"> Cloud Jobs </span></h1>
+            <h1><span class="text-warning"> Profile </span></h1>
           </div>
-          {% load static %}
+           {% load static %}
           <img
             class="img-fluid w-50 d-none d-sm-block"
-            src="{% static 'images/cv.svg' %}"
+            src="{% static 'images/user.svg' %}"
             alt=""
           />
         </div>
       </div>
     </section>
 
-    <!-- Upload your CV section -->
-    <section class="bg-primary text-light p-5">
+    <!-- Boxes -->
+    <section class="p-5">
       <div class="container">
-        <div class="d-md-flex justify-content-between align-items-center">
-          <h3 class="mb-3 mb-md-0">Upload your CV here</h3>
+        <div class="row g-0">
+          <div class="col-md">
 
-          <div class="input-group news-input">
-            <button class="btn btn-dark btn-lg" type="button">Upload</button>
+            {% for job in jobs %}
+              <div class="card border-primary bg-dark text-light my-2">
+                <div class="card-body">
+                  <div class="container">
+                    <div class="row">
+                      <div class="col-10">
+                        <h3 class="card-title mb-3">{{ job.title }} @ {{ job.company }}</h3>
+                        <p class="card-text">{{ job.description }}</p>
+                      </div>
+                      <div class="col-auto">
+                        <a class="btn btn-primary btn-lg stretched-link"  href="{{ job.link }}"><i class="bi bi-arrow-right"></i></a>
+                      </div>
+                      <div class="col-auto">
+                        <form method="POST" id="savejob">    
+                          {% csrf_token %}
+                          <input type="hidden" name="save" id="job" value="{{job}}">
+                          <button class="btn btn-primary" type="submit" id="save">
+                          Save
+                          </button>
+                      </form>             
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="card-footer">
+                  <div class="container">
+                    <div class="row">
+                      <div class="col-sm text-left">
+                        {% for tag in job.skills %}
+                        <span class="badge badge-primary">{{ tag }}</span>
+                        {% endfor %}
+                      </div>
+
+                      <div class="col-sm">
+                        <div class="row">
+                          <div class="col-sm">
+                            <i class="bi bi-geo-alt"></i>
+                          </div>
+                          <div class="col-auto">
+                            <p class"card-text text-left">{{ job.location }}</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="col-sm text-right">
+                        <span class="badge badge-primary text-right">{{ job.salary }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            {% endfor %}
+
           </div>
         </div>
       </div>
     </section>
+
 
     <!-- Footer -->
     <footer class="p-5 bg-dark text-white text-center position-relative">
@@ -148,6 +215,31 @@
       </div>
     </div>
 
+    {% load static %}
+    <script src="/static/js/jquery-2.2.4.min.js"></script>
+    {% csrf_token %}
+    <script>
+      //$(document).on('submit', '#savejob',function(e){
+      $(document).on('submit', '#savejob', function(e){
+        e.preventDefault();
+          $.ajax({
+            type: "POST",
+            url:'{% url "savejob" %}',
+            data:{
+              meal: $('#job').val(),
+              csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val(),
+              action: 'post'
+            },
+            success: function(result){
+              alert("Success");
+            },
+            error : function(xhr,errmsg,err) {
+              console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
+            }
+          });
+        });
+    </script>
+
     <script
       src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js"
       integrity="sha384-gtEjrD/SeCtmISkJkNUaaKMoLD0//ElJ19smozuHV6z3Iehds+3Ulb9Bn9Plx0x4"
@@ -165,7 +257,7 @@
         zoom: 18,
       })
     </script>
-  </body>
+</body>
 </html><!DOCTYPE html>
 <html lang="en">
 <head>

@@ -22,7 +22,9 @@
       href="https://api.mapbox.com/mapbox-gl-js/v2.1.1/mapbox-gl.css"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="style.css" />
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
+    <!---<link rel="stylesheet" href="style.css" />-->
     <title>Frontend Bootcamp</title>
   </head>
 
@@ -49,10 +51,18 @@
           </ul>
         </div>
         {% if user.is_authenticated %}
+        <div class="collapse navbar-collapse" id="navmenu">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+              <a href="/profile" class="nav-link">Profile</a>
+            </li>
+          </ul>
+        </div>
+
           <div class="collapse navbar-collapse" id="navmenu">
             <ul class="navbar-nav ms-auto">
               <li class="nav-item">
-                    <a href="{% url 'logout' %}">Logout</a>
+                    <a href="{% url 'logout' %}" class="nav-link">Logout</a>
               </li>
             </ul>
           </div>
@@ -60,7 +70,7 @@
           <div class="collapse navbar-collapse" id="navmenu">
             <ul class="navbar-nav ms-auto">
               <li class="nav-item">
-                    <a href="{% url 'login_page' %}">Login</a>
+                    <a href="{% url 'login_page' %}" class="nav-link">Login</a>
               </li>
             </ul>
           </div>
@@ -79,9 +89,10 @@
               Find the best tech jobs matching your skills
             </p>
           </div>
+           {% load static %}
           <img
             class="img-fluid w-50 d-none d-sm-block"
-            src="img/cloudjobs.svg"
+            src="{% static 'images/cloudjobs.svg' %}"
             alt=""
           />
         </div>
@@ -111,7 +122,8 @@
 
           <div class="input-group news-input">
             <!-- Latest compiled and minified JavaScript -->
-            <script src="list.js"></script>
+             {% load static %}
+            <script src="{% static 'js/list.js' %}"></script> 
             <div id="filters">
               <div>
                 <div class="input-group">
@@ -143,6 +155,15 @@
                       </div>
                       <div class="col-auto">
                         <a class="btn btn-primary btn-lg stretched-link"  href="{{ job.link }}"><i class="bi bi-arrow-right"></i></a>
+                      </div>
+                      <div class="col-auto">
+                        <form method="POST" id="savejob">    
+                          {% csrf_token %}
+                          <input type="hidden" name="save" id="job" value="{{job}}">
+                          <button class="btn btn-primary" type="submit" id="save">
+                          Save
+                          </button>
+                      </form>             
                       </div>
                     </div>
                   </div>
@@ -250,6 +271,31 @@
         </div>
       </div>
     </div>
+
+    {% load static %}
+    <script src="/static/js/jquery-2.2.4.min.js"></script>
+    {% csrf_token %}
+    <script>
+      //$(document).on('submit', '#savejob',function(e){
+      $(document).on('submit', '#savejob', function(e){
+        e.preventDefault();
+          $.ajax({
+            type: "POST",
+            url:'{% url "savejob" %}',
+            data:{
+              meal: $('#job').val(),
+              csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val(),
+              action: 'post'
+            },
+            success: function(result){
+              alert("Success");
+            },
+            error : function(xhr,errmsg,err) {
+              console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
+            }
+          });
+        });
+    </script>
 
     <script
       src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js"

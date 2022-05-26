@@ -75,13 +75,14 @@ WSGI_APPLICATION = 'cloudjobs.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgres',
-        'USER': 'postgres',
-        'PASSWORD': 'ccbdasql',
+        'NAME': 'cloudjobs_db',
+        'USER': 'francesco',
+        'PASSWORD': 'admin',
         'HOST':'localhost'
 
     }
 }
+
 
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases

@@ -21,14 +21,15 @@
       href="https://api.mapbox.com/mapbox-gl-js/v2.1.1/mapbox-gl.css"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="style.css" />
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
     <title>Frontend Bootcamp</title>
   </head>
   <body>
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg bg-dark navbar-dark py-3 fixed-top">
       <div class="container">
-        <a href="#" class="navbar-brand">Cloud Jobs</a>
+        <a href="/" class="navbar-brand">Cloud Jobs</a>
 
         <button
           class="navbar-toggler"
@@ -38,14 +39,6 @@
         >
           <span class="navbar-toggler-icon"></span>
         </button>
-
-        <div class="collapse navbar-collapse" id="navmenu">
-          <ul class="navbar-nav ms-auto">
-            <li class="nav-item">
-              <a href="#learn" class="nav-link">Upload CV</a>
-            </li>
-          </ul>
-        </div>
       </div>
     </nav>
 
@@ -55,14 +48,15 @@
       <div class="container">
         <div class="d-sm-flex align-items-center justify-content-between">
           <div>
-            <h1><span class="text-warning"> Cloud Jobs </span></h1>
+            <h1><span class="text-warning"> CV Uploader </span></h1>
             <p class="lead my-4">
               Find the best tech jobs matching your skills
             </p>
           </div>
+          {% load static %}
           <img
             class="img-fluid w-50 d-none d-sm-block"
-            src="img/cloudjobs.svg"
+            src="{% static 'images/curriculum.svg' %}"
             alt=""
           />
         </div>
@@ -192,6 +186,5 @@
     <title>Frontend Bootcamp</title>
 </head>
 <body>
-
 </body>
 </html>
