@@ -38,8 +38,10 @@ class Jobs(models.Model):
          for the search in the DB. The search is case-sensitive for
          the jobs title.
 
+         TODO: Factor all-case supporting function
+
         Arguments:
-        filters: Dict {":title":"pattern_to_search_job_titles", ":tags":"tags_to_look_for_in_listings"}
+        filters: Dict {":title":"pattern_to_search_job_titles", ":skills":["tag1", "tag2"]}
         limit: Number of jobs to display
         """
         try:
@@ -53,10 +55,10 @@ class Jobs(models.Model):
         if filters is None:
             rep = table.scan(Limit=limit)
         else:
-            filter_list = []
             filter_expr = ""
 
             if filters[":title"] != "":
+                filter_list = []
                 # To make the search case sensitive, we'll add the two possible combinaison
                 # E.g.: software engineer, Software Engineer
                 all_case_jobs = [filters[":title"].lower(), " ".join([word[0].upper() + word[1:] for word in filters[":title"].split(" ")])]
@@ -65,12 +67,16 @@ class Jobs(models.Model):
                     filters[":title"+str(i)] = all_case_jobs[i]
                     filter_list += [f"contains(title, :title{str(i)})"]
 
-                filter_expr += " or ".join(filter_list)
+                filter_expr += "(" + " or ".join(filter_list) + ")"
 
-            del(filters[":title"]) # Or will get unused parameter issues
+            if len(filter_expr) > 0:
+                filter_list = []
 
+                # If filter_expr is not empty, then a title was specified
+                # In that case, we want to add first an AND condition before doing the rest
+                if len(filter_expr) > 0:
+                    filter_expr += " and "
 
-            if len(filters[":skills"]) > 0:
                 # To make the search case sensitive, we'll add the two possible combinaison for each skill
                 # E.g.: python, Python
                 all_case_skills = []
@@ -82,9 +88,13 @@ class Jobs(models.Model):
                     filter_list += [f"contains(skills, :skills{str(i)})"]
 
 
-                filter_expr += " or ".join(filter_list)
+                filter_expr += "(" + " or ".join(filter_list) + ")"
 
-            del(filters[":skills"]) # Or will get unused parameter issues
+            # To avoid unused paramters issues, whether we use them or not
+            del(filters[":skills"])
+            del(filters[":title"])
+
+            print(filter_expr)
 
             rep = table.scan(Limit=limit,
                             FilterExpression=filter_expr,

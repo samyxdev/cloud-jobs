@@ -23,6 +23,9 @@ def search(request):
     if request.method == 'GET':
         filters = {}
         filters[":title"] = request.GET.get("title")
+        filters[":skills"] = request.GET.get("skills").split(",")
+
+        print(filters)
 
         #TODO: Handle tags
 

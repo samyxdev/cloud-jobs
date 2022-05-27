@@ -100,19 +100,35 @@
     </section>
 
     <!-- Searching-->
+    <form action="/search" method="get" enctype="multipart/form-data">{% csrf_token %}
+
     <section class="bg-primary text-light p-5">
       <div class="container">
         <div class="d-md-flex justify-content-between align-items-center">
-          <h3 class="mb-3 mb-md-0">Search by Job title</h3>
+          <h3 class="mb-3 mb-md-auto">Search by Job title</h3>
           <div class="input-group news-input">
-            <form action="/search" method="get" enctype="multipart/form-data">{% csrf_token %}
               <input id="title" type="text" name="title" class="form-control" placeholder="Senior Dog Hairdresser" />
-              <button class="btn btn-dark btn-lg" type="submit">Search</button>
-            </form>
           </div>
         </div>
       </div>
     </section>
+
+    <section class="bg-primary text-light p-5">
+      <div class="container">
+        <div class="d-md-flex justify-content-between align-items-center">
+          <h3 class="mb-3 mb-md-auto">Add a skill</h3>
+          <div class="input-group news-input">
+              <input id="skills" type="text" name="skills" class="form-control" placeholder="Skills separated by comma, e.g.: Python,Golang" />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="bg-primary text-light p-5">
+      <button class="btn btn-dark btn-lg btn-block" type="submit">Search</button>
+    </section>
+    </form>
+
 
     <!-- Searching-->
     <section class="bg-primary text-light p-5">
@@ -123,11 +139,11 @@
           <div class="input-group news-input">
             <!-- Latest compiled and minified JavaScript -->
              {% load static %}
-            <script src="{% static 'js/list.js' %}"></script> 
+            <script src="{% static 'js/list.js' %}"></script>
             <div id="filters">
               <div>
                 <div class="input-group">
-                  <input type="text" class="form-control" id="input" placeholder="Type.."/>
+                  <input type="text" class="form-control" id="tag" name="tag" placeholder="Type.."/>
                   <button class="btn btn-dark btn-lg" id ="add" type="button">Add Filter</button>
                 </div>
                 <ul id="list"></ul>
@@ -157,13 +173,13 @@
                         <a class="btn btn-primary btn-lg stretched-link"  href="{{ job.link }}"><i class="bi bi-arrow-right"></i></a>
                       </div>
                       <div class="col-auto">
-                        <form method="POST" id="savejob">    
+                        <form method="POST" id="savejob">
                           {% csrf_token %}
                           <input type="hidden" name="save" id="job" value="{{job}}">
                           <button class="btn btn-primary" type="submit" id="save">
                           Save
                           </button>
-                      </form>             
+                      </form>
                       </div>
                     </div>
                   </div>
