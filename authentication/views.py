@@ -23,6 +23,9 @@ def search(request):
     if request.method == 'GET':
         filters = {}
         filters[":title"] = request.GET.get("title")
+        filters[":skills"] = request.GET.get("skills").strip(" ").split(",")
+
+        print(filters)
 
         #TODO: Handle tags
 
@@ -51,7 +54,6 @@ def login(request):
 
 
 def register(request):
-
     if request.method == 'POST':
 
         email = request.POST['email']
@@ -66,8 +68,6 @@ def register(request):
 
     return render(request,'register.html')
 
-#def cv(request):
-#    return render(request, 'cv.html')
 def upload(request):
     if request.method == 'POST' and request.FILES['file']:
         user_file = request.FILES["file"]
