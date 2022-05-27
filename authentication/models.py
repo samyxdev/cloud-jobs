@@ -52,7 +52,7 @@ class Jobs(models.Model):
         else:
             # To make the search case sensitive, we'll add the two possible combinaison
             # E.g.: software engineer, Software Engineer
-            filters["title"] = [filters["title"].lower(), " ".join([word[0].upper() + word[1:] for word in filters["title"].split(" ")])]
+            filters[":title"] = [filters[":title"].lower(), " ".join([word[0].upper() + word[1:] for word in filters[":title"].split(" ")])]
 
             filter_expr = ["contains(title, :title)"]
 
