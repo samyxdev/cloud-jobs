@@ -1,8 +1,11 @@
+from importlib.machinery import all_suffixes
 from django.db import models
 from django.contrib.auth.models import User
 from http.client import UnimplementedFileMode
 from django.db import models
+
 import boto3
+from boto3.dynamodb.conditions import Attr
 import os
 import logging
 
@@ -29,10 +32,11 @@ class Jobs(models.Model):
 
         return listings
 
+
     def get_jobs(self, filters=None, limit=5):
         """Retrieve jobs from the DynamoDB. Can use filters formatted
-         for the search in the DB.
-         TODO: Search to be improved to avoid case-sensitive matching
+         for the search in the DB. The search is case-sensitive for
+         the jobs title.
 
         Arguments:
         filters: Dict {":title":"pattern_to_search_job_titles", ":tags":"tags_to_look_for_in_listings"}
@@ -49,15 +53,26 @@ class Jobs(models.Model):
         # Apply query
         if filters is None:
             rep = table.scan(Limit=limit)
-        else:
+        elif filters[":title"] != "":
+            filter_list = []
+            filter_expr = ""
             # To make the search case sensitive, we'll add the two possible combinaison
             # E.g.: software engineer, Software Engineer
-            filters[":title"] = [filters[":title"].lower(), " ".join([word[0].upper() + word[1:] for word in filters[":title"].split(" ")])]
+            all_case_jobs = [filters[":title"].lower(), " ".join([word[0].upper() + word[1:] for word in filters[":title"].split(" ")])]
 
-            filter_expr = ["contains(title, :title)"]
+            for i in range(len(all_case_jobs)):
+                filters[":title"+str(i)] = all_case_jobs[i]
+                filter_list += [f"contains(title, :title{str(i)})"]
+
+            del(filters[":title"]) # Or will get unused parameter issues
+
+            filter_expr += " or ".join(filter_list)
+
+            # title has to be in all_case_jobs
+            # each one of our skills tags must be included in the job skills tag list
 
             rep = table.scan(Limit=limit,
-                            FilterExpression=' and '.join(filter_expr),
+                            FilterExpression=filter_expr,
                             ExpressionAttributeValues=filters)
 
         if rep['ResponseMetadata']['HTTPStatusCode'] == 200:
