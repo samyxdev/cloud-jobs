@@ -14,6 +14,8 @@ dataScience = ["Machine Learning", "AI"]
 
 nlp = spacy.load("en_core_web_sm")
 
+total_skills = 0
+
 def init():
     skills = {}
     
@@ -28,7 +30,6 @@ def init():
 def get_entities_spacy(text):
     
     skills = init()
-    
     
     for entity in nlp(text).ents:
         
@@ -116,6 +117,14 @@ def process_text_detection(bucket, document):
     print("skills_entities_comprehend: ", skills_entities_comprehend)
     print("skills_entities_basic_nlp: ", skills_entities_basic_nlp)
 
+    total_skills = len(databasesNames) + len(programmingLanguages) + len(cloudNames) + len(devOpsNames) + len(dataScience)
+
+    print(total_skills)
+
+    print("matching percentage skills_entities_spacy: ", 100 * (get_n_matchings(skills_entities_spacy) / total_skills))
+    print("matching percentage skills_entities_comprehend: ", 100 * (get_n_matchings(skills_entities_comprehend) / total_skills))
+    print("matching percentage skills_entities_basic_nlp: ", 100 * (get_n_matchings(skills_entities_basic_nlp) / total_skills))
+
     # Put item in DynamoDB
     dynamodb = boto3.resource('dynamodb', region_name=AWS_REGION)
     table = dynamodb.Table(SKILLS_TABLE)
@@ -138,6 +147,11 @@ def process_text_detection(bucket, document):
     )
 
     print("response", response_dynamodb)
+
+def get_n_matchings(skills_matchs):
+    return len(skills_matchs['DB']) + len(skills_matchs['PL']) + \
+    len(skills_matchs['CL']) + len(skills_matchs['DSC']) + \
+    len(skills_matchs['DVOPS'])
 
 def get_text(response):
     # Print text
