@@ -145,17 +145,16 @@
                         <h4 class="card-title mb-3">{{ job.title }} @ {{ job.company }}</h4>
                         <p class="card-text">{{ job.description }}</p>
                       </div>
+
                       <div class="col-auto">
-                        <a class="btn btn-primary btn-lg stretched-link"  href="{{ job.link }}"><i class="bi bi-arrow-right"></i></a>
-                      </div>
-                      <div class="col-auto">
+                        <a class="btn btn-primary btn-block w-100 stretched-link mb-1"  href="{{ job.link }}"><i class="bi bi-arrow-right"></i></a>
                         <form method="POST" id="savejob">
                           {% csrf_token %}
                           <input type="hidden" name="save" id="job" value="{{job}}">
-                          <button class="btn btn-primary" type="submit" id="save">
+                          <button class="btn btn-primary btn-block w-100" type="submit" id="save">
                           Save
                           </button>
-                      </form>
+                        </form>
                       </div>
                     </div>
                   </div>
