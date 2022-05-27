@@ -157,12 +157,15 @@
                         <a class="btn btn-primary btn-lg stretched-link"  href="{{ job.link }}"><i class="bi bi-arrow-right"></i></a>
                       </div>
                       <div class="col-auto">
-                        <form method="POST" id="savejob">    
-                          {% csrf_token %}
-                          <input type="hidden" name="save" id="job" value="{{job}}">
-                          <button class="btn btn-primary" type="submit" id="save">
+                        <!--<form method="POST" id="{{ job.link }}">    -->
+                        <!--<form method="POST" class="saveform">-->
+                        <form method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" class="job" value="{{ job }}">
+                        <!--<button class="remove" type="submit" id="save">-->
+                        <button class="remove" type="submit">
                           Save
-                          </button>
+                        </button>
                       </form>             
                       </div>
                     </div>
@@ -195,7 +198,6 @@
                     </div>
                   </div>
                 </div>
-
               </div>
             {% endfor %}
 
@@ -272,30 +274,40 @@
       </div>
     </div>
 
-    {% load static %}
-    <script src="/static/js/jquery-2.2.4.min.js"></script>
-    {% csrf_token %}
-    <script>
-      //$(document).on('submit', '#savejob',function(e){
-      $(document).on('submit', '#savejob', function(e){
-        e.preventDefault();
-          $.ajax({
-            type: "POST",
-            url:'{% url "savejob" %}',
-            data:{
-              meal: $('#job').val(),
-              csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val(),
-              action: 'post'
-            },
-            success: function(result){
-              alert("Success");
-            },
-            error : function(xhr,errmsg,err) {
-              console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
-            }
-          });
+
+
+      <!--{% load static %}-->
+      <!--<script src="/static/js/jquery-2.2.4.min.js"></script>-->
+      {% csrf_token %}
+      <script>
+          $(document).ready(function () {
+            $(".remove").click(function (event) {
+                event.preventDefault();  // don't think it should be required with button type=button
+                var job = $(this).parent().find('.job').val(); // find correct input box. 
+                var csrf = $('input[name="csrfmiddlewaretoken"]').val(); // get csrf token in variable.
+                // there are multiple ways to get csrf token, I personally like this ^^, see https://docs.djangoproject.com/en/2.1/ref/csrf/#ajax for more
+                $.ajax({
+                    url: '{% url "savejob" %}',
+                    type: "POST",
+                    data: {
+                        job: job,
+                        csrfmiddlewaretoken: csrf, // add csrf token to post data
+                        action: 'post'
+                    },
+                    success: function (response_data) {
+                        alert('works fine')
+                    },
+                    error: function (response_data) {
+                        console.log('error occurred');
+                    }
+                });
+            });
         });
-    </script>
+          
+      </script>
+
+
+
 
     <script
       src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js"

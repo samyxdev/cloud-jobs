@@ -13,4 +13,5 @@ urlpatterns = [
     path('profile', views.profile, name='profile'),
     path('login_page', views.login_page, name='login_page'),
     path('search', views.search, name='search')
+    #path('getsavedjobs', views.get_saved_jobs, name='getsavedjobs')
 ]

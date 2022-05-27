@@ -80,7 +80,7 @@ def upload(request):
 
 def profile(request):
     jobs = Jobs()
-    context = {"jobs":jobs.get_saved_jobs()}
+    context = {"jobs":jobs.get_saved_jobs(request.user.username)}
 
     return render(request, 'profile.html', context)
 
@@ -88,9 +88,13 @@ def profile(request):
 def save(request):
     if request.POST.get('action') == 'post':
         job_fields = request.POST.get('job')
+        #job_fields = request.POST['job']
         job_dict = ast.literal_eval(job_fields)
         job = Jobs()
-        status = job.save_job(request.user, job_dict['link'], job_dict['title'], job_dict['company'], job_dict['description'], job_dict['skills'], job_dict['location'], job_dict['salary'] )
+        #if job.check_saved_jobs(request.user.username, job_dict['link']):
+        #pass
+        #else:
+        status = job.save_job(request.user.username, job_dict['link'], job_dict['title'], job_dict['company'], job_dict['description'], job_dict['skills'], job_dict['location'], job_dict['salary'] )
         return HttpResponse('', status=status)
 
 
@@ -101,3 +105,9 @@ def logout(request):
 
 def login_page(request):
     return redirect('login')
+
+
+#def get_saved_jobs(request):
+#    jobs = Jobs()
+#    context = {"jobs":jobs.get_saved_jobs(request.user)}
+#    return render(request, 'profile.html', context)

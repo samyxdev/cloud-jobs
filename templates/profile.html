@@ -99,15 +99,6 @@
                       <div class="col-auto">
                         <a class="btn btn-primary btn-lg stretched-link"  href="{{ job.link }}"><i class="bi bi-arrow-right"></i></a>
                       </div>
-                      <div class="col-auto">
-                        <form method="POST" id="savejob">    
-                          {% csrf_token %}
-                          <input type="hidden" name="save" id="job" value="{{job}}">
-                          <button class="btn btn-primary" type="submit" id="save">
-                          Save
-                          </button>
-                      </form>             
-                      </div>
                     </div>
                   </div>
                 </div>
