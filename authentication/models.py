@@ -50,26 +50,41 @@ class Jobs(models.Model):
                 'Error connecting to database table: ' + (e.fmt if hasattr(e, 'fmt') else '') + ','.join(e.args) + ".AWS_REGION=" + AWS_REGION + ",JOBS_TABLE_GET=" + JOBS_TABLE_GET)
             return None
 
-        # Apply query
         if filters is None:
             rep = table.scan(Limit=limit)
-        elif filters[":title"] != "":
+        else:
             filter_list = []
             filter_expr = ""
-            # To make the search case sensitive, we'll add the two possible combinaison
-            # E.g.: software engineer, Software Engineer
-            all_case_jobs = [filters[":title"].lower(), " ".join([word[0].upper() + word[1:] for word in filters[":title"].split(" ")])]
 
-            for i in range(len(all_case_jobs)):
-                filters[":title"+str(i)] = all_case_jobs[i]
-                filter_list += [f"contains(title, :title{str(i)})"]
+            if filters[":title"] != "":
+                # To make the search case sensitive, we'll add the two possible combinaison
+                # E.g.: software engineer, Software Engineer
+                all_case_jobs = [filters[":title"].lower(), " ".join([word[0].upper() + word[1:] for word in filters[":title"].split(" ")])]
+
+                for i in range(len(all_case_jobs)):
+                    filters[":title"+str(i)] = all_case_jobs[i]
+                    filter_list += [f"contains(title, :title{str(i)})"]
+
+                filter_expr += " or ".join(filter_list)
 
             del(filters[":title"]) # Or will get unused parameter issues
 
-            filter_expr += " or ".join(filter_list)
 
-            # title has to be in all_case_jobs
-            # each one of our skills tags must be included in the job skills tag list
+            if len(filters[":skills"]) > 0:
+                # To make the search case sensitive, we'll add the two possible combinaison for each skill
+                # E.g.: python, Python
+                all_case_skills = []
+                for skill in filters[":skills"]:
+                    all_case_skills += [skill.lower(), skill[0].upper() + skill[1:]]
+
+                for i in range(len(all_case_skills)):
+                    filters[":skills"+str(i)] = all_case_skills[i]
+                    filter_list += [f"contains(skills, :skills{str(i)})"]
+
+
+                filter_expr += " or ".join(filter_list)
+
+            del(filters[":skills"]) # Or will get unused parameter issues
 
             rep = table.scan(Limit=limit,
                             FilterExpression=filter_expr,
