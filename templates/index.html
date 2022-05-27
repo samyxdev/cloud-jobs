@@ -102,6 +102,34 @@
     <!-- Searching-->
     <form action="/search" method="get" enctype="multipart/form-data">{% csrf_token %}
 
+      <!-- New layout with aligned rows-->
+      <section class="bg-primary text-light p-5">
+        <div class="row mb-3">
+          <div class="col-4">
+            <h3 class="mb-3 mb-md-auto">Search by Job title</h3>
+          </div>
+          <div class="col-md">
+            <div class="input-group news-input">
+              <input id="title" type="text" name="title" class="form-control" placeholder="Senior Dog Hairdresser" />
+          </div>
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <div class="col-4">
+            <h3 class="mb-3 mb-md-auto">Add a skill</h3>
+          </div>
+          <div class="col-md">
+            <div class="input-group news-input">
+              <input id="skills" type="text" name="skills" class="form-control" placeholder="Skills separated by comma, e.g.: Python,Golang" />
+            </div>
+          </div>
+        </div>
+
+        <button class="btn mt-3 btn-dark btn-lg btn-block w-100" type="submit">Search</button>
+      </section>
+
+    <!-- Old layout
     <section class="bg-primary text-light p-5">
       <div class="container">
         <div class="d-md-flex justify-content-between align-items-center">
@@ -127,32 +155,9 @@
     <section class="bg-primary text-light p-5">
       <button class="btn btn-dark btn-lg btn-block" type="submit">Search</button>
     </section>
+    -->
+
     </form>
-
-
-    <!-- Searching-->
-    <section class="bg-primary text-light p-5">
-      <div class="container">
-        <div class="d-md-flex justify-content-between">
-          <h3 class="mb-3 mb-md-0">Filter the results</h3>
-
-          <div class="input-group news-input">
-            <!-- Latest compiled and minified JavaScript -->
-             {% load static %}
-            <script src="{% static 'js/list.js' %}"></script>
-            <div id="filters">
-              <div>
-                <div class="input-group">
-                  <input type="text" class="form-control" id="tag" name="tag" placeholder="Type.."/>
-                  <button class="btn btn-dark btn-lg" id ="add" type="button">Add Filter</button>
-                </div>
-                <ul id="list"></ul>
-             </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
 
     <!-- Boxes -->
     <section class="p-5">

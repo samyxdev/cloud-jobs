@@ -87,7 +87,6 @@ class Jobs(models.Model):
                     filters[":skills"+str(i)] = all_case_skills[i]
                     filter_list += [f"contains(skills, :skills{str(i)})"]
 
-
                 filter_expr += "(" + " or ".join(filter_list) + ")"
 
             # To avoid unused paramters issues, whether we use them or not
