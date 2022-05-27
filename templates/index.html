@@ -147,27 +147,12 @@
                       </div>
 
                       <div class="col-auto">
-                        <!-- <a class="btn btn-primary btn-block w-100 stretched-link mb-1"  href="{{ job.link }}"><i class="bi bi-arrow-right"></i></a>
-                        <form method="POST" id="savejob">
-                          {% csrf_token %}
-                          <input type="hidden" name="save" id="job" value="{{job}}">
-                          <button class="btn btn-primary btn-block w-100" type="submit" id="save">
-                          Save
-                          </button>
-                        </form>-->
-                        <a class="btn btn-primary btn-lg stretched-link"  href="{{ job.link }}"><i class="bi bi-arrow-right"></i></a>
-                      </div>
-                      <div class="col-auto">
-                        <!--<form method="POST" id="{{ job.link }}">    -->
-                        <!--<form method="POST" class="saveform">-->
+                        <a class="btn btn-primary btn-block w-100 stretched-link mb-1"  href="{{ job.link }}"><i class="bi bi-arrow-right"></i></a>
                         <form method="POST">
-                        {% csrf_token %}
-                        <input type="hidden" class="job" value="{{ job }}">
-                        <!--<button class="remove" type="submit" id="save">-->
-                        <button class="remove" type="submit">
-                          Save
-                        </button>
-                      </form>             
+                          {% csrf_token %}
+                          <input type="hidden" class="job" value="{{ job }}">
+                          <button id="saveBtn" class="btn btn-primary btn-block w-100 jfyjtfj" type="submit">Save</button>
+                        </form>
                       </div>
                     </div>
                   </div>
@@ -282,9 +267,10 @@
       {% csrf_token %}
       <script>
           $(document).ready(function () {
-            $(".remove").click(function (event) {
+            $(".btn.btn-primary.btn-block.w-100.jfyjtfj").click(function (event) {
+                console.log("holà");
                 event.preventDefault();  // don't think it should be required with button type=button
-                var job = $(this).parent().find('.job').val(); // find correct input box. 
+                var job = $(this).parent().find('.job').val(); // find correct input box.
                 var csrf = $('input[name="csrfmiddlewaretoken"]').val(); // get csrf token in variable.
                 // there are multiple ways to get csrf token, I personally like this ^^, see https://docs.djangoproject.com/en/2.1/ref/csrf/#ajax for more
                 $.ajax({
@@ -304,7 +290,7 @@
                 });
             });
         });
-          
+
       </script>
 
 
