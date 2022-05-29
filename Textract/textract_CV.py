@@ -1,5 +1,4 @@
 import boto3
-import spacy
 
 SKILLS_TABLE = 'CCBDA_Project'
 
@@ -11,10 +10,6 @@ cloudNames = ["AWS","Microsoft Azure", "GCP", "IBM", "SaaS", "PaaS", "IaaS"]
 devOpsNames = ["Docker", "Kubernetes"]
 dataScience = ["Machine Learning", "AI"]
 
-nlp = spacy.load("en_core_web_sm")
-
-total_skills = 0
-
 def init():
     skills = {}
     
@@ -24,27 +19,6 @@ def init():
     skills['DSC'] = set()
     skills['DVOPS'] = set()
 
-    return skills
-
-def get_entities_spacy(text):
-    
-    skills = init()
-    
-    for entity in nlp(text).ents:
-        
-        value =  entity.text.strip()
-        
-        if value in databasesNames:
-            skills['DB'].add(value)
-        if value in programmingLanguages:
-            skills['PL'].add(value)
-        if value in cloudNames:
-            skills['CL'].add(value)
-        if value in dataScience:
-            skills['DSC'].add(value)
-        if value in devOpsNames:
-            skills['DVOPS'].add(value)
-    
     return skills
 
 
@@ -72,24 +46,6 @@ def get_entities_aws_comprehend(text):
 
     return skills
 
-def basic_nlp(text):
-    
-    skills = init()
-    
-    for token in nlp(text):
-        value = token.text.strip()
-        if value in databasesNames:
-            skills['DB'].add(value)
-        if value in programmingLanguages:
-            skills['PL'].add(value)
-        if value in cloudNames:
-            skills['CL'].add(value)
-        if value in dataScience:
-            skills['DSC'].add(value)
-        if value in devOpsNames:
-            skills['DVOPS'].add(value)
-    
-    return skills
 
 def process_text_detection(bucket, document):
     # Get the document from S3
@@ -106,21 +62,7 @@ def process_text_detection(bucket, document):
     text = get_text(response)
             
     skills_entities_comprehend = get_entities_aws_comprehend(text)
-    skills_entities_spacy = get_entities_spacy(text) 
-    skills_entities_basic_nlp =  basic_nlp(text)
     
-    print("skills_entities_spacy: ", skills_entities_spacy)
-    print("skills_entities_comprehend: ", skills_entities_comprehend)
-    print("skills_entities_basic_nlp: ", skills_entities_basic_nlp)
-
-    total_skills = len(databasesNames) + len(programmingLanguages) + len(cloudNames) + len(devOpsNames) + len(dataScience)
-
-    print(total_skills)
-
-    print("matching percentage skills_entities_spacy: ", 100 * (get_n_matchings(skills_entities_spacy) / total_skills))
-    print("matching percentage skills_entities_comprehend: ", 100 * (get_n_matchings(skills_entities_comprehend) / total_skills))
-    print("matching percentage skills_entities_basic_nlp: ", 100 * (get_n_matchings(skills_entities_basic_nlp) / total_skills))
-
     # Put item in DynamoDB
     dynamodb = boto3.resource('dynamodb', region_name=AWS_REGION)
     table = dynamodb.Table(SKILLS_TABLE)
@@ -144,12 +86,9 @@ def get_n_matchings(skills_matchs):
     len(skills_matchs['DVOPS'])
 
 def get_text(response):
-    # Print text
-    # print("\nText\n========")
     text = ""
     for item in response["Blocks"]:
         if item["BlockType"] == "LINE":
-            # print('\033[94m' + item["Text"] + '\033[0m')
             text = text + " " + item["Text"]
     return text
     
