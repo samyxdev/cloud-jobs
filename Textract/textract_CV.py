@@ -1,6 +1,5 @@
 import boto3
 import spacy
-from spacy import displacy
 
 SKILLS_TABLE = 'CCBDA_Project'
 
@@ -57,7 +56,6 @@ def get_entities_aws_comprehend(text):
     # Detect entities
     entities = comprehend.detect_entities(LanguageCode="en", Text=text)
     
-    # print("\nEntities\n========")
     for entity in entities["Entities"]:
         value =  str(entity["Text"]).strip()
         
@@ -79,8 +77,6 @@ def basic_nlp(text):
     skills = init()
     
     for token in nlp(text):
-        # print(token.text, token.lemma_, token.pos_, token.tag_, token.dep_,
-        #         token.shape_, token.is_alpha, token.is_stop)
         value = token.text.strip()
         if value in databasesNames:
             skills['DB'].add(value)
@@ -128,21 +124,15 @@ def process_text_detection(bucket, document):
     # Put item in DynamoDB
     dynamodb = boto3.resource('dynamodb', region_name=AWS_REGION)
     table = dynamodb.Table(SKILLS_TABLE)
-
-    # def store_as_string(x): return ",".join([str(i) for i in x])
-
-    # d2 = dict((k, store_as_string(v)) for k, v in cv_items.items())
-
-    # for db_item_key, db_item_value in d2.items():
-    #     response_dynamodb = table.put_item(
-    #         Item={
-    #             'entity': "{}:{}".format(db_item_key, db_item_value),
-    #         }
-    #     )
-       
+      
+    final_skills = []
+    
+    for _, v in skills_entities_comprehend.items():
+        final_skills += v
+    
     response_dynamodb = table.put_item(
         Item={
-            'entity': ",".join(skills),
+            'entity': ",".join(final_skills),
         }
     )
 
@@ -155,11 +145,11 @@ def get_n_matchings(skills_matchs):
 
 def get_text(response):
     # Print text
-    print("\nText\n========")
+    # print("\nText\n========")
     text = ""
     for item in response["Blocks"]:
         if item["BlockType"] == "LINE":
-            print('\033[94m' + item["Text"] + '\033[0m')
+            # print('\033[94m' + item["Text"] + '\033[0m')
             text = text + " " + item["Text"]
     return text
     
