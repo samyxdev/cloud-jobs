@@ -9,6 +9,8 @@ from boto3.dynamodb.conditions import Attr, Key
 import os
 import logging
 
+import textract_CV
+
 logger = logging.getLogger(__name__)
 
 JOBS_TABLE_GET = os.environ.get('JOBS_TABLE_GET')
@@ -223,8 +225,9 @@ class Jobs(models.Model):
 class CV(models.Model):
     def handle_cv_upload(self, f, f_id):
         print("New CV uploaded, uuid=" + f_id)
-        with open("file_" + f_id, 'wb+') as destination:
+        with open("file_" + f_id, 'rb') as f:
             # ... do something here with the CV
+            textract_CV.process_text_detection(None, None, f.read())
             pass
 
         return None
