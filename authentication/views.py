@@ -1,17 +1,20 @@
 from django.shortcuts import render , redirect
-from django.http import HttpResponse
 from django.contrib.auth.models import User, auth
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout as auth_logout
+from django.http import HttpResponse
+from django.shortcuts import render
+
 import requests
 import ast
+import logging
 import uuid
-from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render
+
 from .models import Jobs, CV
 
 
+logger = logging.getLogger(__name__)
 
 def index(request):
     jobs = Jobs()
@@ -68,14 +71,40 @@ def register(request):
 
 @login_required
 def upload(request):
+    # If we are comming after an upload
     if request.method == 'POST' and request.FILES['file']:
+        logger.info("Upload page: Uploaded a CV...")
         user_file = request.FILES["file"]
 
         cv = CV()
-        cv.handle_cv_upload(user_file, str(uuid.uuid4()), request.user.username)
-        return render(request, 'upload.html')
+        skills = cv.handle_cv_upload(user_file, str(uuid.uuid4()), request.user.username)
+        return upload_with_skills(request, skills)
     else:
-        return render(request, 'upload.html')
+        # If we can find skills related to that user in the db, we'll print them
+        cv = CV()
+        skills = cv.get_user_skills(request.user.username)
+        if not skills is None:
+            logger.info("Upload page: Existing skills")
+            return upload_with_skills(request, skills)
+
+        # Rendering without jobs as no skills were found
+        else:
+            logger.info("Upload page: No existing skills")
+            return render(request, 'upload.html', context={"jobs":[], "skills":[]})
+
+        #return render(request, 'upload.html')
+
+
+@login_required
+def upload_with_skills(request, skills):
+    """Called by upload when an user already"""
+
+    context = {"skills":skills, "jobs":[]}
+
+    #TODO:Retrieve corresponding jobs
+    pass
+
+    return render(request, 'upload.html', context=context)
 
 def profile(request):
     jobs = Jobs()

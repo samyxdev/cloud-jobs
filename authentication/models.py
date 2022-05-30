@@ -229,13 +229,16 @@ class Jobs(models.Model):
 class CV(models.Model):
     def handle_cv_upload(self, f, f_id, user_id):
         """Handler called by views to process the CV
-        and insert the extracted skills in the DB"""
+        and insert the extracted skills in the DB. Returns skills
+        so the upload view doesn't have to check the DB (the first itme)"""
         logger.info("New CV uploaded, uuid=" + f_id)
 
         skills = textract_CV.process_text_detection(None, None, f.file.read())
         status = self.insert_cv_extractions(skills, user_id)
 
-        return status
+        logger.info("CV Handling: Post DB insertion status:" + status)
+
+        return skills
 
     def insert_cv_extractions(self, skills, id=None):
         """Insert the features of the CV associated to one's user
@@ -271,6 +274,25 @@ class CV(models.Model):
             logger.error('Unknown error inserting item to database.')
 
         return status
+
+    def get_user_skills(self, user_id):
+        """Retrieve skills from the DB"""
+        try:
+            dynamodb = boto3.resource('dynamodb', region_name=AWS_REGION)
+            table = dynamodb.Table(SKILLS_TABLE)
+        except Exception as e:
+            logger.error(
+                'Error connecting to database table: ' + (e.fmt if hasattr(e, 'fmt') else '') + ','.join(e.args))
+            return None
+
+        rep = table.scan(FilterExpression=Attr("user").eq(user_id))
+
+        if rep['ResponseMetadata']['HTTPStatusCode'] == 200:
+            #logger.info(f"Retrieved following skills for {rep['Items']['user']}: " + ",".join(rep['Items']['skills']))
+            return rep['Items'][0]['skills']
+
+        logger.error('Error retrieving jobs from database. Reponse:'+ str(rep['ResponseMetadata']['HTTPStatusCode']))
+        return None
 
 
 

@@ -65,21 +65,99 @@
 
     <!-- Upload your CV section -->
     <section class="bg-primary text-light p-5">
-      <div class="container">
-        <div class="d-md-flex justify-content-between align-items-center">
-          <h3 class="mb-3 mb-md-0">Upload your CV here</h3>
+      <div class="row mb-3">
+        <div class="container">
+          <div class="d-md-flex justify-content-between align-items-center">
+            <h3 class="mb-3 mb-md-0">Upload your CV here</h3>
 
-          <div class="input-group news-input">
-            <form method="post" enctype="multipart/form-data">{% csrf_token %}
-              <div class="row">
-                <div class="col-auto">
-                  <input type="file" class="form-control" id="file" name="file">
+            <div class="input-group news-input">
+              <form method="post" enctype="multipart/form-data">{% csrf_token %}
+                <div class="row">
+                  <div class="col-auto">
+                    <input type="file" class="form-control" id="file" name="file">
+                  </div>
+                  <div class="col-auto">
+                    <button class="btn btn-secondary">Submit</button>
+                  </div>
                 </div>
-                <div class="col-auto">
-                  <button class="btn btn-secondary">Submit</button>
+              </form>
+            </div>
+          </div>
+        </div>
+        {% if skills|length > 0 %}
+        <div class="col-auto">
+          <h5 class="mb-3 mb-md-auto">Your skills</h4>
+        </div>
+        <div class="col-sm">
+          {% for skill in skills %}
+          <span class="badge badge-primary">{{ skill }}</span>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="col-4">
+          <h5 class="mb-3 mb-md-auto">No skills found for you. Please upload a valid CV first !</h4>
+        </div>
+        {% endif %}
+      </div>
+    </section>
+
+    <!-- Boxes -->
+    <section class="p-5">
+      <div class="container">
+        <div class="row g-0">
+          <div class="col-md">
+
+            {% for job in jobs %}
+              <div class="card border-primary bg-dark text-light my-2">
+                <div class="card-body">
+                  <div class="container">
+                    <div class="row">
+                      <div class="col-10">
+                        <h4 class="card-title mb-3">{{ job.title }} @ {{ job.company }}</h4>
+                        <p class="card-text">{{ job.description }}</p>
+                      </div>
+
+                      <div class="col-auto">
+                        <a class="btn btn-primary btn-block w-100 stretched-link mb-1"  href="{{ job.link }}"><i class="bi bi-arrow-right"></i></a>
+                        <form method="POST">
+                          {% csrf_token %}
+                          <input type="hidden" class="job" value="{{ job }}">
+                          <button id="saveBtn" class="btn btn-primary btn-block w-100 jfyjtfj" type="submit">Save</button>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="card-footer">
+                  <div class="container">
+                    <div class="row">
+                      <div class="col-sm text-left">
+                        {% for tag in job.skills %}
+                        <span class="badge badge-primary">{{ tag }}</span>
+                        {% endfor %}
+                      </div>
+
+                      <div class="col-sm">
+                        <div class="row">
+                          <div class="col-1">
+                            <i class="bi bi-geo-alt"></i>
+                          </div>
+                          <div class="col-auto">
+                            <p class"card-text text-left">{{ job.location }}</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="col-auto text-right">
+                        <span class="badge badge-primary text-right">{{ job.salary }}</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </form>
+            {% endfor %}
+
           </div>
         </div>
       </div>
