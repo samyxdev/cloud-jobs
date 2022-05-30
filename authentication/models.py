@@ -240,7 +240,7 @@ class CV(models.Model):
         skills = textract_CV.process_text_detection(None, None, f.file.read())
         status = self.insert_cv_extractions(skills, user_id)
 
-        logger.info("CV Handling: Post DB insertion status:" + status)
+        logger.info("CV Handling: Post DB insertion status:" + str(status))
 
         return skills
 
@@ -291,8 +291,10 @@ class CV(models.Model):
 
         rep = table.scan(FilterExpression=Attr("user").eq(user_id))
 
-        if rep['ResponseMetadata']['HTTPStatusCode'] == 200:
-            #logger.info(f"Retrieved following skills for {rep['Items']['user']}: " + ",".join(rep['Items']['skills']))
+        print(rep['Items'])
+
+        if rep['ResponseMetadata']['HTTPStatusCode'] == 200 and len(rep['Items']) > 0:
+            logger.info(f"Retrieved following skills for {rep['Items'][0]['user']}: " + ",".join(rep['Items'][0]['skills']))
             return rep['Items'][0]['skills']
 
         logger.error('Error retrieving jobs from database. Reponse:'+ str(rep['ResponseMetadata']['HTTPStatusCode']))
