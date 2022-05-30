@@ -29,7 +29,7 @@
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg bg-dark navbar-dark py-3 fixed-top">
       <div class="container">
-        <a href="/" class="navbar-brand">Cloud Jobs</a>
+        <a href="#" class="navbar-brand">Cloud Jobs</a>
 
         <button
           class="navbar-toggler"
@@ -39,8 +39,42 @@
         >
           <span class="navbar-toggler-icon"></span>
         </button>
+
+        {% if user.is_authenticated %}
+        <div class="collapse navbar-collapse" id="navmenu">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+              <a href="/upload" class="nav-link">Upload & Match</a>
+            </li>
+          </ul>
+        </div>
+        <div class="collapse navbar-collapse" id="navmenu">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+              <a href="/profile" class="nav-link">Profile</a>
+            </li>
+          </ul>
+        </div>
+
+          <div class="collapse navbar-collapse" id="navmenu">
+            <ul class="navbar-nav ms-auto">
+              <li class="nav-item">
+                    <a href="{% url 'logout' %}" class="nav-link">Logout</a>
+              </li>
+            </ul>
+          </div>
+        {% else %}
+          <div class="collapse navbar-collapse" id="navmenu">
+            <ul class="navbar-nav ms-auto">
+              <li class="nav-item">
+                    <a href="{% url 'login_page' %}" class="nav-link">Login</a>
+              </li>
+            </ul>
+          </div>
+        {% endif %}
       </div>
     </nav>
+
 
     <!-- Showcase -->
     <section
@@ -48,9 +82,9 @@
       <div class="container">
         <div class="d-sm-flex align-items-center justify-content-between">
           <div>
-            <h1><span class="text-warning"> CV Uploader </span></h1>
+            <h1><span class="text-warning"> Upload & Match </span></h1>
             <p class="lead my-4">
-              Find the best tech jobs matching your skills
+              Find the best tech jobs matching your skills, based on your CV !
             </p>
           </div>
           {% load static %}
@@ -66,35 +100,39 @@
     <!-- Upload your CV section -->
     <section class="bg-primary text-light p-5">
       <div class="row mb-3">
-        <div class="container">
-          <div class="d-md-flex justify-content-between align-items-center">
-            <h3 class="mb-3 mb-md-0">Upload your CV here</h3>
+        <div class="col-4">
+          <h3 class="mb-3 mb-md-0">Upload your CV here</h3>
+        </div>
 
-            <div class="input-group news-input">
-              <form method="post" enctype="multipart/form-data">{% csrf_token %}
-                <div class="row">
-                  <div class="col-auto">
-                    <input type="file" class="form-control" id="file" name="file">
-                  </div>
-                  <div class="col-auto">
-                    <button class="btn btn-secondary">Submit</button>
-                  </div>
+        <div class="col-md">
+          <div class="input-group news-input">
+            <form method="post" enctype="multipart/form-data">{% csrf_token %}
+              <div class="row">
+                <div class="col-auto">
+                  <input type="file" class="form-control" id="file" name="file">
                 </div>
-              </form>
-            </div>
+                <div class="col-auto">
+                  <button class="btn btn-secondary">Submit</button>
+                </div>
+              </div>
+            </form>
           </div>
         </div>
+      </div>
+
+      <div class="row mb-3">
         {% if skills|length > 0 %}
-        <div class="col-auto">
-          <h5 class="mb-3 mb-md-auto">Your skills</h4>
+        <div class="col-4">
+          <h3 class="mb-3 mb-md-auto">Your skills</h3>
         </div>
-        <div class="col-sm">
+        <div class="col-md">
           {% for skill in skills %}
-          <span class="badge badge-primary">{{ skill }}</span>
+          <h4 class="badge bg-dark">{{ skill }}</h4>
           {% endfor %}
         </div>
+
         {% else %}
-        <div class="col-4">
+        <div class="col-auto">
           <h5 class="mb-3 mb-md-auto">No skills found for you. Please upload a valid CV first !</h4>
         </div>
         {% endif %}

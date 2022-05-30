@@ -28,6 +28,9 @@ def search(request):
         filters[":title"] = request.GET.get("title")
         filters[":skills"] = request.GET.get("skills").strip(" ").split(",")
 
+        if filters[":title"] == "" and filters[":skills"][0] == '':
+            filters = None
+
         print(filters)
 
         jobs = Jobs()
@@ -97,12 +100,13 @@ def upload(request):
 
 @login_required
 def upload_with_skills(request, skills):
-    """Called by upload when an user already"""
+    """Called by upload when an user already uploaded a CV.
+    Displays jobs from the DB using the user's skills"""
 
     context = {"skills":skills, "jobs":[]}
 
-    #TODO:Retrieve corresponding jobs
-    pass
+    jobs = Jobs()
+    context["jobs"] = jobs.get_jobs(filters={":title":"", ":skills":skills})
 
     return render(request, 'upload.html', context=context)
 

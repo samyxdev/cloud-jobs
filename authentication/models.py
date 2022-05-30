@@ -58,6 +58,8 @@ class Jobs(models.Model):
                 'Error connecting to database table: ' + (e.fmt if hasattr(e, 'fmt') else '') + ','.join(e.args) + ".AWS_REGION=" + AWS_REGION + ",JOBS_TABLE_GET=" + JOBS_TABLE_GET)
             return None
 
+        print("get_jobs:", filters)
+
         if filters is None:
             rep = table.scan(Limit=limit)
         else:
@@ -75,13 +77,14 @@ class Jobs(models.Model):
 
                 filter_expr += "(" + " or ".join(filter_list) + ")"
 
-            if len(filter_expr) > 0:
+            if len(filters[":skills"]) > 0:
                 filter_list = []
 
-                # If filter_expr is not empty, then a title was specified
-                # In that case, we want to add first an AND condition before doing the rest
                 if len(filter_expr) > 0:
-                    filter_expr += " and "
+                    # If filter_expr is not empty, then a title was specified
+                    # In that case, we want to add first an AND condition before doing the rest
+                    if len(filter_expr) > 0:
+                        filter_expr += " and "
 
                 # To make the search case sensitive, we'll add the two possible combinaison for each skill
                 # E.g.: python, Python
@@ -99,7 +102,8 @@ class Jobs(models.Model):
             del(filters[":skills"])
             del(filters[":title"])
 
-            logger.info(filter_expr)
+            logger.info("Formatted filter_expr: " + filter_expr)
+            print("Formatted filter_expr: " + filter_expr)
 
             rep = table.scan(Limit=limit,
                             FilterExpression=filter_expr,
