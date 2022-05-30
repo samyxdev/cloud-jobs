@@ -27,8 +27,6 @@ def search(request):
 
         print(filters)
 
-        #TODO: Handle tags
-
         jobs = Jobs()
         context = {"jobs":jobs.get_jobs(filters=filters)}
 
@@ -68,12 +66,13 @@ def register(request):
 
     return render(request,'register.html')
 
+@login_required
 def upload(request):
     if request.method == 'POST' and request.FILES['file']:
         user_file = request.FILES["file"]
 
         cv = CV()
-        cv.handle_cv_upload(user_file, str(uuid.uuid4()))
+        cv.handle_cv_upload(user_file, str(uuid.uuid4()), request.user.username)
         return render(request, 'upload.html')
     else:
         return render(request, 'upload.html')

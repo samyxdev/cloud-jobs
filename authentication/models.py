@@ -1,4 +1,5 @@
 from importlib.machinery import all_suffixes
+from pydoc import TextRepr
 from django.db import models
 from django.contrib.auth.models import User
 from http.client import UnimplementedFileMode
@@ -9,7 +10,9 @@ from boto3.dynamodb.conditions import Attr, Key
 import os
 import logging
 
-import textract_CV
+from matplotlib.pyplot import text
+
+from . import textract_CV
 
 logger = logging.getLogger(__name__)
 
@@ -223,26 +226,25 @@ class Jobs(models.Model):
 
 
 class CV(models.Model):
-    def handle_cv_upload(self, f, f_id):
+    def handle_cv_upload(self, f, f_id, user_id):
         print("New CV uploaded, uuid=" + f_id)
-        with open("file_" + f_id, 'rb') as f:
-            # ... do something here with the CV
-            textract_CV.process_text_detection(None, None, f.read())
-            pass
 
-        return None
+        skills = textract_CV.process_text_detection(None, None, f.file.read())
+        status = self.insert_cv_extractions(skills, user_id)
 
-    def insert_cv_extractions(self, cv_features, id=None):
+        return status
+
+    def insert_cv_extractions(self, skills, id=None):
         """Insert the features of the CV associated to one's user
         id to the database."""
-        logger.info(f"Env vars: {AWS_REGION}, {JOBS_TABLE_SAVE}")
+        logger.info(f"Env vars: {AWS_REGION}, {textract_CV.SKILLS_TABLE}")
 
         # Adding the user id to the dict
-        cv_features["id"] = id
+        cv_features = {"user":id, "skills":skills}
 
         try:
             dynamodb = boto3.resource('dynamodb', region_name=AWS_REGION, aws_access_key_id=AWS_ACCESS_KEY_ID, aws_secret_access_key=AWS_SECRET_ACCESS_KEY)
-            table = dynamodb.Table(JOBS_TABLE_SAVE)
+            table = dynamodb.Table(textract_CV.SKILLS_TABLE)
         except Exception as e:
             logger.error(
                 'Error connecting to database table: ' + (e.fmt if hasattr(e, 'fmt') else '') + ','.join(e.args))

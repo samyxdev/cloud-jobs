@@ -1,6 +1,6 @@
 import boto3
 
-SKILLS_TABLE = 'CCBDA_Project'
+SKILLS_TABLE = 'user_skills'
 
 AWS_REGION = "eu-west-1"
 
@@ -48,6 +48,7 @@ def get_entities_aws_comprehend(text):
 
 
 def process_text_detection(bucket=None, document_name=None, document_bytes=None):
+    """Process a CV file to return extracted skills as a list of string"""
     if not bucket is None:
         # Get the document from S3
         s3_connection = boto3.resource('s3')
@@ -65,18 +66,22 @@ def process_text_detection(bucket=None, document_name=None, document_bytes=None)
 
     skills_entities_comprehend = get_entities_aws_comprehend(text)
 
-    # Put item in DynamoDB
-    dynamodb = boto3.resource('dynamodb', region_name=AWS_REGION)
-    table = dynamodb.Table(SKILLS_TABLE)
-
     final_skills = []
 
     for _, v in skills_entities_comprehend.items():
         final_skills += v
 
+    return final_skills
+
+
+def put_skills_db(skills):
+    # Put item in DynamoDB
+    dynamodb = boto3.resource('dynamodb', region_name=AWS_REGION)
+    table = dynamodb.Table(SKILLS_TABLE)
+
     response_dynamodb = table.put_item(
         Item={
-            'entity': ",".join(final_skills),
+            'entity': ",".join(skills),
         }
     )
 
@@ -98,7 +103,8 @@ def main():
     bucket = 'sagemaker-canvas-bucket-tutorial'
     document = 'Daniel_Arias_CV.pdf'
 
-    process_text_detection(bucket, document)
+    skills = process_text_detection(bucket, document)
+    put_skills_db(skills)
 
 
 if __name__ == "__main__":
