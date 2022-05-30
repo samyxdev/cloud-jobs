@@ -1,6 +1,6 @@
 import boto3
 
-SKILLS_TABLE = 'user_skills'
+SKILLS_TABLE = 'CCBDA_test'
 
 AWS_REGION = "eu-west-1"
 

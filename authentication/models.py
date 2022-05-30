@@ -18,6 +18,7 @@ logger = logging.getLogger(__name__)
 
 JOBS_TABLE_GET = os.environ.get('JOBS_TABLE_GET')
 JOBS_TABLE_SAVE = os.environ.get('JOBS_TABLE_SAVE')
+SKILLS_TABLE = 'user_skills'
 
 AWS_REGION = os.environ.get('AWS_REGION')
 AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
@@ -98,7 +99,7 @@ class Jobs(models.Model):
             del(filters[":skills"])
             del(filters[":title"])
 
-            print(filter_expr)
+            logger.info(filter_expr)
 
             rep = table.scan(Limit=limit,
                             FilterExpression=filter_expr,
@@ -227,7 +228,9 @@ class Jobs(models.Model):
 
 class CV(models.Model):
     def handle_cv_upload(self, f, f_id, user_id):
-        print("New CV uploaded, uuid=" + f_id)
+        """Handler called by views to process the CV
+        and insert the extracted skills in the DB"""
+        logger.info("New CV uploaded, uuid=" + f_id)
 
         skills = textract_CV.process_text_detection(None, None, f.file.read())
         status = self.insert_cv_extractions(skills, user_id)
@@ -237,14 +240,14 @@ class CV(models.Model):
     def insert_cv_extractions(self, skills, id=None):
         """Insert the features of the CV associated to one's user
         id to the database."""
-        logger.info(f"Env vars: {AWS_REGION}, {textract_CV.SKILLS_TABLE}")
+        logger.info(f"Env vars: {AWS_REGION}, {SKILLS_TABLE}")
 
         # Adding the user id to the dict
         cv_features = {"user":id, "skills":skills}
 
         try:
             dynamodb = boto3.resource('dynamodb', region_name=AWS_REGION, aws_access_key_id=AWS_ACCESS_KEY_ID, aws_secret_access_key=AWS_SECRET_ACCESS_KEY)
-            table = dynamodb.Table(textract_CV.SKILLS_TABLE)
+            table = dynamodb.Table(SKILLS_TABLE)
         except Exception as e:
             logger.error(
                 'Error connecting to database table: ' + (e.fmt if hasattr(e, 'fmt') else '') + ','.join(e.args))
