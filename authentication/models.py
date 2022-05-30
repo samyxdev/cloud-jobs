@@ -77,7 +77,7 @@ class Jobs(models.Model):
 
                 filter_expr += "(" + " or ".join(filter_list) + ")"
 
-            if len(filters[":skills"]) > 0:
+            if len(filters[":skills"]) > 0 and filters[":skills"][0] != "":
                 filter_list = []
 
                 if len(filter_expr) > 0:
