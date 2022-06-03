@@ -25,7 +25,7 @@
     {% load static %}
     <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
     <!---<link rel="stylesheet" href="style.css" />-->
-    <title>Frontend Bootcamp</title>
+    <title>CloudJobs</title>
   </head>
 
   <body>
@@ -147,7 +147,7 @@
                       </div>
 
                       <div class="col-auto">
-                        <a class="btn btn-primary btn-block w-100 stretched-link mb-1"  href="{{ job.link }}"><i class="bi bi-arrow-right"></i></a>
+                        <a class="btn btn-primary btn-block w-100  mb-1"  href="{{ job.link }}"><i class="bi bi-arrow-right"></i></a>
                         <form method="POST">
                           {% csrf_token %}
                           <input type="hidden" class="job" value="{{ job }}">
@@ -327,7 +327,7 @@
     crossorigin="anonymous"
     />
     <link rel="stylesheet" href="style.css"
-    <title>Frontend Bootcamp</title>
+    <title>CloudJobs</title>
 </head>
 <body>
 
