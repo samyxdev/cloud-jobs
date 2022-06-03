@@ -10,8 +10,6 @@ from boto3.dynamodb.conditions import Attr, Key
 import os
 import logging
 
-from matplotlib.pyplot import text
-
 from . import textract_CV
 
 logger = logging.getLogger(__name__)

@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-2c)%fci0nfjk7#jq2swa5cfzo)&syl(40br57x_8uspdmna7d8
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["cj-eb-env.eba-v3hervap.eu-west-1.elasticbeanstalk.com", "localhost", "127.0.0.1"]
 
 
 # Application definition
@@ -71,18 +71,29 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'cloudjobs.wsgi.application'
 
-#TODO: Factoring user+password in environnement variables
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgres',
-        'USER': 'postgres',
-        'PASSWORD': 'ccbdasql',
-        'HOST':'localhost'
-
+if 'RDS_DB_NAME' in os.environ:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': os.environ['RDS_DB_NAME'],
+            'USER': os.environ['RDS_USERNAME'],
+            'PASSWORD': os.environ['RDS_PASSWORD'],
+            'HOST': os.environ['RDS_HOSTNAME'],
+            'PORT': os.environ['RDS_PORT'],
+        }
     }
-}
-
+else:
+    # Local credentials
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': 'postgres',
+            'USER': 'postgres',
+            'PASSWORD': 'ccbdasql',
+            'HOST': 'localhost',
+            'PORT': '5432',
+        }
+    }
 
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
