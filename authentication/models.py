@@ -208,18 +208,7 @@ class Jobs(models.Model):
                 'Error connecting to database table: ' + (e.fmt if hasattr(e, 'fmt') else '') + ','.join(e.args))
             return None
 
-        # Apply query
-        #filters = user
-        #if filters is None:
-        #    rep = table.scan(Limit=limit)
-        #else:
-            #filter_expr = ["contains(title, :title)"]
-        rep = table.scan(Limit=limit,
-                        FilterExpression=Attr("user").eq(user))
-
-                        #FilterExpression=Key.eq(user),
-                        #ExpressionAttributeValues=filters)
-        #raise NotImplementedError("Job filtering hasn't been implemented yet.")
+        rep = table.query(KeyConditionExpression=Key('user').eq(user))
 
         if rep['ResponseMetadata']['HTTPStatusCode'] == 200:
             return self.process_listings(rep['Items'])
