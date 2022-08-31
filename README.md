@@ -1,6 +1,7 @@
 # CCBDA-Project
 
-Matching jobs by skills from CV
+Matching jobs by skills from CV.
+Team project for CCBDA 22' Class
 
 ## Main Branch
 
