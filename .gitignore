@@ -136,3 +136,10 @@ cv_site/file_*
 # Script file for exporting evironnement variable
 environnnement.bat
 environnnement.sh
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml
+
+*.zip
+*_credentials.csv
