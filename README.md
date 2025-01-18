@@ -1,7 +1,14 @@
 # CCBDA-Project
+Personalized Job board by matching Resume skills to job posts using AI.
+Team project for CCBDA 22' Class.
 
-Matching jobs by skills from CV.
-Team project for CCBDA 22' Class
+Sample:
+![sample](imgs/example.png)
+
+Architecture:
+![architecture](imgs/archi.png)
+
+
 
 ## Main Branch
 
